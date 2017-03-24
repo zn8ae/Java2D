@@ -161,6 +161,9 @@ public class DisplayObject {
 		displayImage = image;
 	}
 
+	public void setDisplayImage(String imageName){
+		setImage(readImage(imageName));
+	}
 
 	/**
 	 * Invoked on every frame before drawing. Used to update this display
@@ -189,30 +192,30 @@ public class DisplayObject {
                 if(key.equals(KeyEvent.getKeyText(KeyEvent.VK_RIGHT))) {
                         setxPos(xPos+5);
                 }
-                //left rotate
-                if(key.equals(KeyEvent.getKeyText(KeyEvent.VK_A))) {
-                    setRotation(getRotation()+0.1);
-
-                }
-                //right rotate
-                if(key.equals(KeyEvent.getKeyText(KeyEvent.VK_S))) {
-                    setRotation(getRotation()-0.1);
-
-                }
-                //Scale up
-                if(key.equals(KeyEvent.getKeyText(KeyEvent.VK_Q))) {
-                    if(getScaleX()<1.4) {
-                    setScaleX(getScaleX()+0.1);
-                    setScaleY(getScaleY()+0.1);
-                    }
-                }
-                //Scale down
-                if(key.equals(KeyEvent.getKeyText(KeyEvent.VK_W))) {
-                    if(getScaleX()>0.5) {
-                        setScaleX(getScaleX()-0.1);
-                        setScaleY(getScaleY()-0.1);
-                    }
-                }
+//                //left rotate
+//                if(key.equals(KeyEvent.getKeyText(KeyEvent.VK_A))) {
+//                    setRotation(getRotation()+0.1);
+//
+//                }
+//                //right rotate
+//                if(key.equals(KeyEvent.getKeyText(KeyEvent.VK_S))) {
+//                    setRotation(getRotation()-0.1);
+//
+//                }
+//                //Scale up
+//                if(key.equals(KeyEvent.getKeyText(KeyEvent.VK_Q))) {
+//                    if(getScaleX()<1.4) {
+//                    setScaleX(getScaleX()+0.1);
+//                    setScaleY(getScaleY()+0.1);
+//                    }
+//                }
+//                //Scale down
+//                if(key.equals(KeyEvent.getKeyText(KeyEvent.VK_W))) {
+//                    if(getScaleX()>0.5) {
+//                        setScaleX(getScaleX()-0.1);
+//                        setScaleY(getScaleY()-0.1);
+//                    }
+//                }
 
             }
         }
