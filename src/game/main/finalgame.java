@@ -44,9 +44,7 @@ public class finalgame extends Game implements IEventListener
     int time;
     TweenJuggler juggler = new TweenJuggler();
 
-    /**
-     * Constructor. See constructor in Game.java for details on the parameters given
-     * */
+
     public finalgame() {
         super("Prototype", 1200, 800);
 
@@ -77,13 +75,13 @@ public class finalgame extends Game implements IEventListener
 
         
         button.setxPos(900);
-        button.setyPos(730);
+        button.setyPos(740);
 
         TweenTransitions transit = new TweenTransitions();
         Tween marioTween = new Tween(Mario, transit);
 
         marioTween.animate(TweenableParams.alpha, 0, 1, 1000);
-        marioTween.animate(TweenableParams.yPos, 300, 640, 1000);
+        marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
 
         juggler.add(marioTween);
 
@@ -108,6 +106,7 @@ public class finalgame extends Game implements IEventListener
     @Override
     public void update(ArrayList<String> pressedKeys){
     	
+    	// Our "save" function key
 		if(pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_S))){
 			
 
@@ -115,7 +114,9 @@ public class finalgame extends Game implements IEventListener
 
         if(Mario != null && button != null) {
         	
+        	// Resetting the button if it is not being stepped on
         	button.setDisplayImage("button.png");
+        	button.setyPos(740);
         	
             //update y position accordingly
             Mario.setyPos(Mario.getyPos()+Mario.getV());
@@ -178,11 +179,10 @@ public class finalgame extends Game implements IEventListener
     @Override
     public void draw(Graphics g){
 
-        if(Mario != null) {
-            //brick.draw(g);
-            //brick2.draw(g);
+        if(Mario != null && button != null) {
         	button.draw(g);
         	
+        	//Used for drawing our hitboxes
         	//g.fillRect((int)button.getHitBox().getX(),(int) button.getHitBox().getY(),(int)button.getHitBox().getWidth(),(int)button.getHitBox().getHeight());
             coin.draw(g);
             Mario.draw(g);
@@ -199,13 +199,13 @@ public class finalgame extends Game implements IEventListener
         game.start();
     }
 
+    // Where all our events are for right now
     @Override
     public void handleEvent(Event event)
     {
         if(event.getEventType()=="CoinPickedUp") {
             Mario.setAlpha(0);
             System.out.println("Quest is completed!");
-//            coin.setAlpha(0);
 
             coinTween.animate(TweenableParams.xPos, 950, 420, 1500);
             coinTween.animate(TweenableParams.yPos, 100, 230, 1500);
@@ -216,9 +216,11 @@ public class finalgame extends Game implements IEventListener
             juggler.add(coinTween);
         }
         
+        // This event is called when the button is pressed
         if(event.getEventType()=="ButtonPressed") {
             System.out.println("Button is being pressed");
             button.setDisplayImage("button_pressed.png");
+            button.setyPos(753);
             if(savedEvents1.contains(event)==false)
             	savedEvents1.add(event);
         }
