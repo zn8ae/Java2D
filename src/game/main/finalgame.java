@@ -12,6 +12,7 @@ import edu.virginia.engine.util.GameClock;
 import edu.virginia.engine.util.Sound;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -21,21 +22,28 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 public class finalgame extends Game implements IEventListener
 {
 
-    /* Create a sprite object for our game. We'll use Sun */
+    
     AnimatedSprite Mario = new AnimatedSprite("Mario");
     Brick brick = new Brick("Brick","Brick.png");
     Brick brick2 = new Brick("Brick","Brick.png");
     
     Brick button = new Brick("button","button.png");
     
+    // For showing we can "reset" our game state
+    Sprite ball = new Sprite("ball","ball.png");
+    
     Coin coin = new Coin("Coin","Coin.png");
 
-    ArrayList<Event> savedEvents1 = new ArrayList<Event>();
+    // Holds the starting positions of all our moveable sprites, so that they can be 
+    // reset when we "save/reload"
+    HashMap<Sprite, Point> startingPositions = new HashMap<Sprite, Point>();
     
     Tween coinTween = new Tween(coin);
     QuestManager manager = new QuestManager();
@@ -64,19 +72,23 @@ public class finalgame extends Game implements IEventListener
         bgm.loop();
 
 
-
-
         coin.setxPos(950);
         coin.setyPos(100);
 
 
         Mario.setxPos(20);
         Mario.setyPos(640);
-
+        //Add mario's starting coords to starting coord Map
+        startingPositions.put(Mario,new Point((int)Mario.getxPos(), (int)Mario.getyPos()));
         
         button.setxPos(900);
         button.setyPos(740);
+        
+        ball.setxPos(400);
+        ball.setyPos(10);
+        startingPositions.put(ball,new Point((int)ball.getxPos(), (int)ball.getyPos()));
 
+        
         TweenTransitions transit = new TweenTransitions();
         Tween marioTween = new Tween(Mario, transit);
 
@@ -109,6 +121,32 @@ public class finalgame extends Game implements IEventListener
     	// Our "save" function key
 		if(pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_S))){
 			
+			//We have a hashMap of <Sprite, Starting x and y>
+			Iterator entries = startingPositions.entrySet().iterator();
+			while (entries.hasNext()) {
+				//Grab our sprite and Point
+				Entry thisEntry = (Entry) entries.next();
+				Object sprite = thisEntry.getKey();
+				Object pos = thisEntry.getValue();
+			  
+				//Set our sprite back to it's starting position
+				((Sprite) sprite).setxPos(((Point) pos).getX());
+				((Sprite) sprite).setyPos(((Point) pos).getY());
+				
+				//An if check to replay our tween if its mario
+				if(((Sprite) sprite).getId().equals("Mario")){
+					TweenTransitions transit = new TweenTransitions();
+			        Tween marioTween = new Tween(Mario, transit);
+
+			        marioTween.animate(TweenableParams.alpha, 0, 1, 1000);
+			        marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
+
+			        juggler.add(marioTween);
+				}
+
+			  
+			}
+			
 
 		}
 
@@ -120,8 +158,13 @@ public class finalgame extends Game implements IEventListener
         	
             //update y position accordingly
             Mario.setyPos(Mario.getyPos()+Mario.getV());
+            
+            // Show falling ball
+            ball.setyPos(ball.getyPos()+ball.getV());
+            ball.setV((ball.getG()+ball.getV())/1.1);
 
 
+            // I do not know what setV is or what this code is doing - Nate
             //determine if on ground
             if(Mario.getyPos()>=650) {
                 Mario.setOnGround(true);
@@ -133,6 +176,7 @@ public class finalgame extends Game implements IEventListener
             //if not, updaet v
             else {
                 Mario.setV(Mario.getV()+Mario.getG());
+                System.out.println("falling");
             }
             
             
@@ -181,7 +225,7 @@ public class finalgame extends Game implements IEventListener
 
         if(Mario != null && button != null) {
         	button.draw(g);
-        	
+        	ball.draw(g);
         	//Used for drawing our hitboxes
         	//g.fillRect((int)button.getHitBox().getX(),(int) button.getHitBox().getY(),(int)button.getHitBox().getWidth(),(int)button.getHitBox().getHeight());
             coin.draw(g);
@@ -220,11 +264,12 @@ public class finalgame extends Game implements IEventListener
         if(event.getEventType()=="ButtonPressed") {
             System.out.println("Button is being pressed");
             button.setDisplayImage("button_pressed.png");
+            //Set position of the pressed button sprite a little bit lower so that it looks better
             button.setyPos(753);
-            if(savedEvents1.contains(event)==false)
-            	savedEvents1.add(event);
+
         }
 
+        // Tween event
         if(event.getEventType()==TweenEvent.TWEEN_COMPLETE_EVENT) {
            coinTween.removeEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
            TweenTransitions transit = new TweenTransitions();
@@ -291,7 +336,6 @@ public class finalgame extends Game implements IEventListener
                         Mario.setyPos(brick2.getyPos()+brick2.getHeight());
                     }
                 }
-
                 //intersect from left, hitbox start from left of coin
                 else {
 
@@ -305,15 +349,7 @@ public class finalgame extends Game implements IEventListener
                     }
                     Mario.setOnGround(false);
                 }
-
-
             }
-
         }
-
-
-
-
-
     }
 }
