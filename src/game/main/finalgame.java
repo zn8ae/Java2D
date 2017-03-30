@@ -26,11 +26,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+
+
+//TODO - 3/30
+//1)Make button lift some gate ONLY when being pressed
+//2)Allow ghosts to also throw collisions with game world
 public class finalgame extends Game implements IEventListener
 {
 
     
     AnimatedSprite Mario = new AnimatedSprite("Mario");
+    Sprite saveStateMario1 = new Sprite("saveStateMario1","saved_Mario1.png");
+    boolean save1 = false;
+    Sprite saveStateMario2 = new Sprite("saveStateMario2","saved_Mario2.png");
+    boolean save2 = false;
+    int saveTracker = 1;
+    // Quick fix for s key being pressed multiple times 
+    int sFrames = 0;
+
+    
     Brick brick = new Brick("Brick","Brick.png");
     Brick brick2 = new Brick("Brick","Brick.png");
     
@@ -117,9 +131,34 @@ public class finalgame extends Game implements IEventListener
      * */
     @Override
     public void update(ArrayList<String> pressedKeys){
-    	
+    	    	
     	// Our "save" function key
-		if(pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_S))){
+		if(pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_S)) && sFrames == 0){
+			
+			//Figure out where to save our old mario ghost
+			if(save1 == false){
+				saveStateMario1.setxPos(Mario.getxPos());
+				saveStateMario1.setyPos(Mario.getyPos());
+				save1 = true;
+			}
+			else if(save2 == false){
+				saveStateMario2.setxPos(Mario.getxPos());
+				saveStateMario2.setyPos(Mario.getyPos());
+				save2 = true;
+			}
+			//This is for overwriting the ghosts
+			else if(save1 && save2){
+				if(saveTracker == 1){
+					saveStateMario1.setxPos(Mario.getxPos());
+					saveStateMario1.setyPos(Mario.getyPos());
+					saveTracker = 2;
+				}
+				else if(saveTracker == 2){
+					saveStateMario2.setxPos(Mario.getxPos());
+					saveStateMario2.setyPos(Mario.getyPos());
+					saveTracker = 1;
+				}
+			}
 			
 			//We have a hashMap of <Sprite, Starting x and y>
 			Iterator entries = startingPositions.entrySet().iterator();
@@ -142,12 +181,12 @@ public class finalgame extends Game implements IEventListener
 			        marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
 
 			        juggler.add(marioTween);
-				}
-
-			  
+				}		  
 			}
 			
 
+			// A ghetto way of making sure this s key if statement is called at max every 10 frames
+			sFrames = 10;
 		}
 
         if(Mario != null && button != null) {
@@ -214,6 +253,10 @@ public class finalgame extends Game implements IEventListener
             juggler.getInstance().nextFrame();
 
         }
+        
+        if(sFrames > 0){
+        	sFrames--;
+        }
     }
 
     /**
@@ -230,8 +273,15 @@ public class finalgame extends Game implements IEventListener
         	//g.fillRect((int)button.getHitBox().getX(),(int) button.getHitBox().getY(),(int)button.getHitBox().getWidth(),(int)button.getHitBox().getHeight());
             coin.draw(g);
             Mario.draw(g);
+
+
         }
 
+        if(saveStateMario1 != null && save1)
+        	saveStateMario1.draw(g);
+        if(saveStateMario2 != null && save2)
+        	saveStateMario2.draw(g);
+        
     }
 
     /**
