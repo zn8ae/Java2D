@@ -242,12 +242,12 @@ public class finalgame extends Game implements IEventListener
                    Event event = new Event("ButtonPressed");
                    button.dispatchEvent(event);
              }
-
+		//Adding the button pressed for saveState 1
             if(saveStateMario1.getHitBox().intersects(button.getHitBox())) {
                 Event event = new Event("ButtonPressed");
                 button.dispatchEvent(event);
             }
-            
+            	//Adding the button pressed for saveState1
             if(saveStateMario2.getHitBox().intersects(button.getHitBox())) {
                 Event event = new Event("ButtonPressed");
                 button.dispatchEvent(event);
@@ -344,6 +344,7 @@ public class finalgame extends Game implements IEventListener
         if(event.getEventType()=="collide") {
             System.out.println("Collision!");
 
+		//Added in saveState marios
             Rectangle inter = Mario.getHitBox().intersection(button.getHitBox());
             Rectangle inter1 = saveStateMario1.getHitBox().intersection(button.getHitBox());
             Rectangle inter2 = saveStateMario2.getHitBox().intersection(button.getHitBox());
