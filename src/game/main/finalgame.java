@@ -43,12 +43,16 @@ public class finalgame extends Game implements IEventListener
     int saveTracker = 1;
     // Quick fix for s key being pressed multiple times 
     int sFrames = 0;
-
+    
+    // See if button is being hit
+    boolean buttonPressed = false;
     
     Brick brick = new Brick("Brick","Brick.png");
     Brick brick2 = new Brick("Brick","Brick.png");
     
     Brick button = new Brick("button","button.png");
+    
+    Brick gate = new Brick("gate","gate.png");
     
     // For showing we can "reset" our game state
     Sprite ball = new Sprite("ball","ball.png");
@@ -86,8 +90,8 @@ public class finalgame extends Game implements IEventListener
         bgm.loop();
 
 
-        coin.setxPos(950);
-        coin.setyPos(100);
+        coin.setxPos(1050);
+        coin.setyPos(700);
 
 
         Mario.setxPos(20);
@@ -95,8 +99,13 @@ public class finalgame extends Game implements IEventListener
         //Add mario's starting coords to starting coord Map
         startingPositions.put(Mario,new Point((int)Mario.getxPos(), (int)Mario.getyPos()));
         
-        button.setxPos(900);
+        button.setxPos(550);
         button.setyPos(740);
+   
+        gate.setxPos(900);
+        gate.setyPos(465);
+        startingPositions.put(gate,new Point((int)gate.getxPos(), (int)gate.getyPos()));
+
         
         ball.setxPos(400);
         ball.setyPos(10);
@@ -113,8 +122,7 @@ public class finalgame extends Game implements IEventListener
 
         coin.addEventListener(this,  "CoinPickedUp");
         
-        brick.addEventListener(this,  "collide");
-        brick2.addEventListener(this, "collide2");
+        gate.addEventListener(this,  "collide2");
 
         button.addEventListener(this, "ButtonPressed");
 
@@ -131,6 +139,9 @@ public class finalgame extends Game implements IEventListener
      * */
     @Override
     public void update(ArrayList<String> pressedKeys){
+    	
+    	//Make button false if not on button
+    	buttonPressed = false;
     	    	
     	// Our "save" function key
 		if(pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_S)) && sFrames == 0){
@@ -201,7 +212,10 @@ public class finalgame extends Game implements IEventListener
             // Show falling ball
             ball.setyPos(ball.getyPos()+ball.getV());
             ball.setV((ball.getG()+ball.getV())/1.1);
+            
 
+            
+      
 
             // I do not know what setV is or what this code is doing - Nate
             //determine if on ground
@@ -230,8 +244,10 @@ public class finalgame extends Game implements IEventListener
 
 
             Mario.update(pressedKeys);
-
-
+          
+            
+        //Where we are checking for intersections
+            
             //Auto Hitbox for coin
             if(Mario.getHitBox().intersects(coin.getHitBox())) {
                    System.out.println("Hit!!");
@@ -239,16 +255,27 @@ public class finalgame extends Game implements IEventListener
                    coin.dispatchEvent(event);
              }
 
+            //Check for pressing button
             if(Mario.getHitBox().intersects(button.getHitBox())) {
                    Event event = new Event("ButtonPressed");
                    button.dispatchEvent(event);
              }
-
-            if(Mario.getHitBox().intersects(brick2.getHitBox())) {
-
-                  Event event = new Event("collide2");
-                  brick2.dispatchEvent(event);
-             }
+            //Adding the button pressed for saveState 1
+            if(saveStateMario1.getHitBox().intersects(button.getHitBox())) {
+                Event event = new Event("ButtonPressed");
+                button.dispatchEvent(event);
+            }
+            //Adding the button pressed for saveState1
+            if(saveStateMario2.getHitBox().intersects(button.getHitBox())) {
+                Event event = new Event("ButtonPressed");
+                button.dispatchEvent(event);
+            }
+			
+			//Collision with gate
+			if(Mario.getHitBox().intersects(gate.getHitBox())) {
+				Event event = new Event("collide2");
+				gate.dispatchEvent(event);
+			 }
 
             juggler.getInstance().nextFrame();
 
@@ -256,6 +283,14 @@ public class finalgame extends Game implements IEventListener
         
         if(sFrames > 0){
         	sFrames--;
+        }
+        
+        // Show falling gate
+        if(buttonPressed == false){
+        	if(gate.getyPos() < 465){
+            	gate.setyPos(gate.getyPos()+gate.getV());
+            	gate.setV((gate.getG()+gate.getV())/1);
+        	}
         }
     }
 
@@ -269,11 +304,10 @@ public class finalgame extends Game implements IEventListener
         if(Mario != null && button != null) {
         	button.draw(g);
         	ball.draw(g);
-        	//Used for drawing our hitboxes
-        	//g.fillRect((int)button.getHitBox().getX(),(int) button.getHitBox().getY(),(int)button.getHitBox().getWidth(),(int)button.getHitBox().getHeight());
+        	
             coin.draw(g);
             Mario.draw(g);
-
+            gate.draw(g);
 
         }
 
@@ -294,7 +328,7 @@ public class finalgame extends Game implements IEventListener
     }
 
     // Where all our events are for right now
-    @Override
+
     public void handleEvent(Event event)
     {
         if(event.getEventType()=="CoinPickedUp") {
@@ -316,6 +350,13 @@ public class finalgame extends Game implements IEventListener
             button.setDisplayImage("button_pressed.png");
             //Set position of the pressed button sprite a little bit lower so that it looks better
             button.setyPos(753);
+            
+            // Logic for getting gate to raise
+            buttonPressed = true;
+            if(gate.getyPos()>220){
+            	gate.setyPos((gate.getyPos()-5));
+            }
+            gate.setV(0);
 
         }
 
@@ -331,71 +372,72 @@ public class finalgame extends Game implements IEventListener
         
         
 
-
+// Not doing anything rn
         if(event.getEventType()=="collide") {
-            System.out.println("Collision!");
-
-            Rectangle inter = Mario.getHitBox().intersection(button.getHitBox());
-
-
-
-            if(!inter.isEmpty()) {
-
-                //intesect from above, then bottom does not touch ground
-                //moreover, edge case
-                if(inter.getY()+inter.getHeight()>button.getyPos()
-                    && inter.getWidth()>=inter.getHeight()+5) {
-                        Mario.setOnGround(true);
-                }
-
-                //intersect from left, hitbox start from left of coin
-                else {
-
-                    if(inter.getX()==button.getxPos()) {
-                        Mario.setxPos(button.getxPos()-Mario.getWidth());
-                    }
-
-                    //intersect from right, hitbox start from right of coin
-                    if(inter.getX()+inter.getWidth()==button.getxPos()+button.getWidth()) {
-                        Mario.setxPos(button.getxPos()+button.getWidth());
-                    }
-                    Mario.setOnGround(false);
-                }
-
-
-            }
+//            System.out.println("Collision!");
+//
+//		//Added in saveState marios
+//            Rectangle inter = Mario.getHitBox().intersection(button.getHitBox());
+//            Rectangle inter1 = saveStateMario1.getHitBox().intersection(button.getHitBox());
+//            Rectangle inter2 = saveStateMario2.getHitBox().intersection(button.getHitBox());
+//
+//            if(!inter.isEmpty()) {
+//
+//                //intesect from above, then bottom does not touch ground
+//                //moreover, edge case
+//                if(inter.getY()+inter.getHeight()>button.getyPos()
+//                    && inter.getWidth()>=inter.getHeight()+5) {
+//                        Mario.setOnGround(true);
+//                }
+//
+//                //intersect from left, hitbox start from left of coin
+//                else {
+//
+//                    if(inter.getX()==button.getxPos()) {
+//                        Mario.setxPos(button.getxPos()-Mario.getWidth());
+//                    }
+//
+//                    //intersect from right, hitbox start from right of coin
+//                    if(inter.getX()+inter.getWidth()==button.getxPos()+button.getWidth()) {
+//                        Mario.setxPos(button.getxPos()+button.getWidth());
+//                    }
+//                    Mario.setOnGround(false);
+//                }
+//
+//
+//            }
 
         }
 
 
         if(event.getEventType()=="collide2") {
-            System.out.println("Collision!");
+            System.out.println("Collision! with gate");
 
-            Rectangle inter = Mario.getHitBox().intersection(brick2.getHitBox());
+            Rectangle inter = Mario.getHitBox().intersection(gate.getHitBox());
 
             if(!inter.isEmpty()) {
 
                 //intesect from above, then bottom does not touch ground
                 //moreover, edge case
-                if(inter.getY()+inter.getHeight()>=brick2.getyPos()
+                if(inter.getY()+inter.getHeight()>=gate.getyPos()
                     && inter.getWidth()>=inter.getHeight()+5) {
-                    if(inter.getY()+inter.getHeight()<=brick2.getyPos()+(brick2.getHeight()/2)) {
+                    if(inter.getY()+inter.getHeight()<=gate.getyPos()+(gate.getHeight()/2)) {
                         Mario.setOnGround(true);
                     } else {
                         Mario.setV(0);;
-                        Mario.setyPos(brick2.getyPos()+brick2.getHeight());
+                        Mario.setyPos(gate.getyPos()+gate.getHeight());
                     }
                 }
                 //intersect from left, hitbox start from left of coin
                 else {
 
-                    if(inter.getX()==brick2.getxPos()) {
-                        Mario.setxPos(brick2.getxPos()-Mario.getWidth());
+                    if(inter.getX()==gate.getxPos()) {
+                        Mario.setxPos(gate.getxPos()-Mario.getWidth());
                     }
 
                     //intersect from right, hitbox start from right of coin
-                    if(inter.getX()+inter.getWidth()==brick2.getxPos()+brick2.getWidth()) {
-                        Mario.setxPos(brick2.getxPos()+brick2.getWidth());
+                    if(inter.getX()+inter.getWidth()==gate.getxPos()+gate.getWidth()) {
+                        Mario.setxPos(gate.getxPos()+gate.getWidth());
                     }
                     Mario.setOnGround(false);
                 }
