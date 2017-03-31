@@ -10,6 +10,8 @@ import edu.virginia.engine.events.*;
 import edu.virginia.engine.tween.*;
 import edu.virginia.engine.util.GameClock;
 import edu.virginia.engine.util.Sound;
+
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -19,12 +21,15 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+
+import javax.imageio.ImageIO;
 
 
 
@@ -36,13 +41,14 @@ public class finalgame extends Game implements IEventListener
 
     
     AnimatedSprite Mario = new AnimatedSprite("Mario");
-    Sprite saveStateMario1 = new Sprite("saveStateMario1","saved_Mario1.png");
+    Sprite saveStateMario1 = new Sprite("saveStateMario1","saved1.png");
     boolean save1 = false;
-    Sprite saveStateMario2 = new Sprite("saveStateMario2","saved_Mario2.png");
+    Sprite saveStateMario2 = new Sprite("saveStateMario2","saved2.png");
     boolean save2 = false;
     int saveTracker = 1;
     // Quick fix for s key being pressed multiple times 
     int sFrames = 0;
+    
     
     // See if button is being hit
     boolean buttonPressed = false;
@@ -77,8 +83,8 @@ public class finalgame extends Game implements IEventListener
         
         
         List<String> list = new ArrayList<String>();
-        list.add("mario1.png");
-        list.add("mario2.png");
+        list.add("hero.png");
+        list.add("hero.png");
         Mario = new AnimatedSprite("Mario",list);
         HashMap<String, int[]> animations = new HashMap<String, int[]>();
         int[] num = new int[2];  num[0] = 0; num[1] = 1;
@@ -95,7 +101,6 @@ public class finalgame extends Game implements IEventListener
 
 
         Mario.setxPos(20);
-        Mario.setyPos(640);
         //Add mario's starting coords to starting coord Map
         startingPositions.put(Mario,new Point((int)Mario.getxPos(), (int)Mario.getyPos()));
         
@@ -215,11 +220,10 @@ public class finalgame extends Game implements IEventListener
             
 
             
-      
 
             // I do not know what setV is or what this code is doing - Nate
             //determine if on ground
-            if(Mario.getyPos()>=650) {
+            if(Mario.getyPos()>=663) {
                 Mario.setOnGround(true);
             }
             //if on ground, no need to udpate v
@@ -239,7 +243,7 @@ public class finalgame extends Game implements IEventListener
             if(Mario.getxPos()<0) Mario.setxPos(0);
             if(Mario.getxPos()>1200) Mario.setxPos(1200);
             if(Mario.getyPos()<0) Mario.setyPos(0);
-            if(Mario.getyPos()>800) Mario.setyPos(800);
+            if(Mario.getyPos()>700) Mario.setyPos(700);
 
 
 
@@ -265,7 +269,7 @@ public class finalgame extends Game implements IEventListener
                 Event event = new Event("ButtonPressed");
                 button.dispatchEvent(event);
             }
-            //Adding the button pressed for saveState1
+            //Adding the button pressed for saveState2
             if(saveStateMario2.getHitBox().intersects(button.getHitBox())) {
                 Event event = new Event("ButtonPressed");
                 button.dispatchEvent(event);
@@ -294,12 +298,27 @@ public class finalgame extends Game implements IEventListener
         }
     }
 
+    public BufferedImage readImage(String imageName) {
+		BufferedImage image = null;
+		try {
+			String file = ("resources" + File.separator + imageName);
+			image = ImageIO.read(new File(file));
+		} catch (IOException e) {
+			System.out.println("[Error in DisplayObject.java:readImage] Could not read image " + imageName);
+			e.printStackTrace();
+		}
+		return image;
+	}
     /**
      * Engine automatically invokes draw() every frame as well. If we want to make sure Sun gets drawn to
      * the screen, we need to make sure to override this method and call Sun's draw method.
      * */
     @Override
     public void draw(Graphics g){
+    	//set background scene
+    	
+    	g.setColor(Color.GRAY);
+    	g.fillRect(0, 0, 1400, 900);
 
         if(Mario != null && button != null) {
         	button.draw(g);
@@ -349,7 +368,7 @@ public class finalgame extends Game implements IEventListener
             System.out.println("Button is being pressed");
             button.setDisplayImage("button_pressed.png");
             //Set position of the pressed button sprite a little bit lower so that it looks better
-            button.setyPos(753);
+            button.setyPos(760);
             
             // Logic for getting gate to raise
             buttonPressed = true;
