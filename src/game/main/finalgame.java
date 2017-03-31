@@ -368,7 +368,7 @@ public class finalgame extends Game implements IEventListener
             System.out.println("Button is being pressed");
             button.setDisplayImage("button_pressed.png");
             //Set position of the pressed button sprite a little bit lower so that it looks better
-            button.setyPos(760);
+            button.setyPos(765);
             
             // Logic for getting gate to raise
             buttonPressed = true;
