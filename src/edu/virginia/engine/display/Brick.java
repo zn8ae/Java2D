@@ -15,21 +15,18 @@ public class Brick extends Sprite implements IEventDispatcher
         // TODO Auto-generated constructor stub
     }
 
-    @Override
     public void addEventListener(IEventListener listener, String eventType)
     {
         // TODO Auto-generated method stub
         listeners.add(listener);
     }
 
-    @Override
     public void removeEventListener(IEventListener listener, String eventType)
     {
         // TODO Auto-generated method stub
         listeners.remove(listener);
     }
 
-    @Override
     public void dispatchEvent(Event event)
     {
         // TODO Auto-generated method stub
@@ -39,7 +36,6 @@ public class Brick extends Sprite implements IEventDispatcher
         }
     }
 
-    @Override
     public boolean hasEventListener(IEventListener listener, String eventType)
     {
         // TODO Auto-generated method stub

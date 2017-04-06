@@ -114,7 +114,6 @@ public class Game extends DisplayObjectContainer implements ActionListener, KeyL
 	 * Called once per frame. updates the game, redraws the screen, etc. May
 	 * need to optimize this if games get too slow.
 	 * */
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		repaintGame();
 	}
@@ -172,21 +171,20 @@ public class Game extends DisplayObjectContainer implements ActionListener, KeyL
 
 
 	ArrayList<String> pressedKeys = new ArrayList<String>();
-	@Override
+
 	public void keyPressed(KeyEvent e) {
 		if(!pressedKeys.contains(KeyEvent.getKeyText(e.getKeyCode())))
 			pressedKeys.add(KeyEvent.getKeyText(e.getKeyCode()));
 	}
 
 
-	@Override
 	public void keyReleased(KeyEvent e) {
 		if(pressedKeys.contains(KeyEvent.getKeyText(e.getKeyCode())))
 			pressedKeys.remove(KeyEvent.getKeyText(e.getKeyCode()));
 	}
 
 
-	@Override
+
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
 
