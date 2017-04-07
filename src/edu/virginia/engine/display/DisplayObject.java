@@ -38,7 +38,7 @@ public class DisplayObject {
 	private double g = 0.5;
 
 	/* describe the jump acceleration */
-	private double jumpAcc = 16;
+	private double jumpAcc = 15;
 
 	/* describe the velocity of Mario */
 	private double v;

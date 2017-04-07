@@ -42,7 +42,9 @@ public class finalgameBrickJump extends Game implements IEventListener
     boolean buttonPressed2 = false;
     
     Brick brick = new Brick("Brick","Brick.png");
-    Brick brick2 = new Brick("Brick","Brick.png");
+    Brick brick2 = new Brick("Brick2","Brick.png");
+    Brick brick3 = new Brick("Brick3","Brick.png");
+
     Brick button = new Brick("button","button.png");
     Brick button2 = new Brick("button2","button.png");
     Brick gate = new Brick("gate","gate.png");
@@ -89,31 +91,35 @@ public class finalgameBrickJump extends Game implements IEventListener
         coin.setyPos(100);
         
 
-        brick.setxPos(850);
-        brick.setyPos(400);
+        brick.setxPos(775);
+        brick.setyPos(475);
         brick.setAlpha(0);
+        startingPositions.put(brick,new Point((int)brick.getxPos(), (int)brick.getyPos()));
+
         
 
-        brick2.setxPos(750);
-        brick2.setyPos(640);
+        brick2.setxPos(900);
+        brick2.setyPos(650);
 
+        brick3.setxPos(650);
+        brick3.setyPos(300);
 
         Mario.setxPos(20);
         Mario.setyPos(640);
         //Add mario's starting coords to starting coord Map
         startingPositions.put(Mario,new Point((int)Mario.getxPos(), (int)Mario.getyPos()));
         
-        gate.setxPos(750);
+        gate.setxPos(500);
         gate.setyPos(465);
         startingPositions.put(gate,new Point((int)gate.getxPos(), (int)gate.getyPos()));
         
-        button.setxPos(500);
+        button.setxPos(300);
         button.setyPos(740);
         
-        button2.setxPos(900);
+        button2.setxPos(700);
         button2.setyPos(740);
         
-        ball.setxPos(400);
+        ball.setxPos(300);
         ball.setyPos(10);
         startingPositions.put(ball,new Point((int)ball.getxPos(), (int)ball.getyPos()));
 
@@ -130,6 +136,7 @@ public class finalgameBrickJump extends Game implements IEventListener
         
         brick.addEventListener(this,  "collide");
         brick2.addEventListener(this, "collide3");
+        brick3.addEventListener(this, "collideWithTopBrick");
         button.addEventListener(this, "ButtonPressed");
         button2.addEventListener(this, "ButtonPressed2");
         saveStateMario1.addEventListener(this, "hitShadow1");
@@ -148,7 +155,12 @@ public class finalgameBrickJump extends Game implements IEventListener
      * */
     @Override
     public void update(ArrayList<String> pressedKeys){
+    	//For gate
     	buttonPressed=false;
+    	
+    	//For brick
+    	buttonPressed2=false;
+
     	// Our "save" function key
 		if(pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_S)) && sFrames == 0){
 			
@@ -244,81 +256,85 @@ public class finalgameBrickJump extends Game implements IEventListener
             //boundary checking
             if(Mario.getxPos()<0) Mario.setxPos(0);
             if(Mario.getxPos()>1150) Mario.setxPos(1150);
-            if(Mario.getyPos()<0) Mario.setyPos(0);
+            //if(Mario.getyPos()<0) Mario.setyPos(0);
             if(Mario.getyPos()>800) Mario.setyPos(800);
 
 
 
             Mario.update(pressedKeys);
 
-            //Auto Hitbox for coin
-            if(Mario.getHitBox().intersects(coin.getHitBox())) {
-                   System.out.println("Hit!!");
-                   PickedUpEvent event = new PickedUpEvent();
-                   coin.dispatchEvent(event);
-             }
-            
-            if(Mario.getHitBox().intersects(saveStateMario1.getHitBox())) {
-            	Event event = new Event("hitShadow1");
-                saveStateMario1.dispatchEvent(event);
-          }
-            
-            if(Mario.getHitBox().intersects(saveStateMario2.getHitBox())) {
-            	Event event = new Event("hitShadow2");
-                saveStateMario2.dispatchEvent(event);
-          }
+		//Auto Hitbox for coin
+		if(Mario.getHitBox().intersects(coin.getHitBox())) {
+		       System.out.println("Hit!!");
+		       PickedUpEvent event = new PickedUpEvent();
+		       coin.dispatchEvent(event);
+		 }
+		
+		if(Mario.getHitBox().intersects(saveStateMario1.getHitBox())) {
+			Event event = new Event("hitShadow1");
+		        saveStateMario1.dispatchEvent(event);
+		  }
+		
+		if(Mario.getHitBox().intersects(saveStateMario2.getHitBox())) {
+			Event event = new Event("hitShadow2");
+			saveStateMario2.dispatchEvent(event);
+		  }
+		
+	    if(Mario.getHitBox().intersects(button.getHitBox())) {
+			   Event event = new Event("ButtonPressed");
+			   button.dispatchEvent(event);
+		 }
 
-            if(Mario.getHitBox().intersects(button.getHitBox())) {
-                   Event event = new Event("ButtonPressed");
-                   button.dispatchEvent(event);
-             }
-
-            if(saveStateMario1.getHitBox().intersects(button.getHitBox())) {
-                Event event = new Event("ButtonPressed");
-                button.dispatchEvent(event);
-            }
-            
-            if(saveStateMario2.getHitBox().intersects(button.getHitBox())) {
-                Event event = new Event("ButtonPressed");
-                button.dispatchEvent(event);
-            }
-            
-            if(Mario.getHitBox().intersects(button2.getHitBox())) {
-                Event event = new Event("ButtonPressed2");
-                button.dispatchEvent(event);
-          }
-
-         if(saveStateMario1.getHitBox().intersects(button2.getHitBox())) {
-             Event event = new Event("ButtonPressed2");
-             button.dispatchEvent(event);
-         }
-         
-         if(saveStateMario2.getHitBox().intersects(button2.getHitBox())) {
-             Event event = new Event("ButtonPressed2");
-             button.dispatchEvent(event);
-         }
-            
-            if(Mario.getHitBox().intersects(brick2.getHitBox())) {
-
-                  Event event = new Event("collide2");
-                  brick2.dispatchEvent(event);
-             }
-            
-            if(Mario.getHitBox().intersects(brick.getHitBox())) {
-
-                Event event = new Event("collide3");
-                brick.dispatchEvent(event);
-           }
-          //Collision with gate
-			if(Mario.getHitBox().intersects(gate.getHitBox())) {
-				Event event = new Event("gateCollision");
-				gate.dispatchEvent(event);
-			 }
-            
+		if(saveStateMario1.getHitBox().intersects(button.getHitBox())) {
+		    Event event = new Event("ButtonPressed");
+		    button.dispatchEvent(event);
+		}
+		
+		if(saveStateMario2.getHitBox().intersects(button.getHitBox())) {
+		    Event event = new Event("ButtonPressed");
+		    button.dispatchEvent(event);
+		}
+		
+		if(Mario.getHitBox().intersects(button2.getHitBox())) {
+		    Event event = new Event("ButtonPressed2");
+		        button.dispatchEvent(event);
+		  }
+		
+		 if(saveStateMario1.getHitBox().intersects(button2.getHitBox())) {
+		     Event event = new Event("ButtonPressed2");
+		     button.dispatchEvent(event);
+		 }
+		 
+		 if(saveStateMario2.getHitBox().intersects(button2.getHitBox())) {
+		     Event event = new Event("ButtonPressed2");
+		     button.dispatchEvent(event);
+		 }
+		    
+		 if(Mario.getHitBox().intersects(brick2.getHitBox())) {
+		
+		       Event event = new Event("collide2");
+		      brick2.dispatchEvent(event);
+		 }
+		
+		if(Mario.getHitBox().intersects(brick.getHitBox())) {
+		
+		    Event event = new Event("collide3");
+		        brick.dispatchEvent(event);
+		 }
+		  //Collision with gate
+		if(Mario.getHitBox().intersects(gate.getHitBox())) {
+			Event event = new Event("gateCollision");
+			gate.dispatchEvent(event);
+		 }
+		  //Collision with top brick
+		if(Mario.getHitBox().intersects(brick3.getHitBox())) {
+			Event event = new Event("collideWithTopBrick");
+			gate.dispatchEvent(event);
+		 }    
 
             juggler.getInstance().nextFrame();
 
-        }
+     }
         
         if(sFrames > 0){
         	sFrames--;
@@ -347,6 +363,7 @@ public class finalgameBrickJump extends Game implements IEventListener
         	ball.draw(g);
         	brick.draw(g);
         	brick2.draw(g);
+        	brick3.draw(g);
         	button2.draw(g);
         	//Used for drawing our hitboxes
         	//g.fillRect((int)button.getHitBox().getX(),(int) button.getHitBox().getY(),(int)button.getHitBox().getWidth(),(int)button.getHitBox().getHeight());
@@ -357,7 +374,7 @@ public class finalgameBrickJump extends Game implements IEventListener
 
         }
         
-        if(buttonPressed == false){
+        if(buttonPressed2 == false){
         	brick.setAlpha(0);
         }
 
@@ -402,7 +419,7 @@ public class finalgameBrickJump extends Game implements IEventListener
             //Set position of the pressed button sprite a little bit lower so that it looks better
             button.setyPos(753);
             
-            if(gate.getyPos()>220){
+            if(gate.getyPos()>320){
             	gate.setyPos((gate.getyPos()-5));
             }
             gate.setV(0);
@@ -412,7 +429,7 @@ public class finalgameBrickJump extends Game implements IEventListener
         if(event.getEventType()=="ButtonPressed2") {
         	brick.setAlpha(1);
         	buttonPressed2 = true;
-            System.out.println("Button is being pressed");
+            System.out.println("Button is being pressed2");
             button2.setDisplayImage("button_pressed.png");
             //Set position of the pressed button sprite a little bit lower so that it looks better
             button2.setyPos(753);
@@ -503,8 +520,44 @@ public class finalgameBrickJump extends Game implements IEventListener
             }
         }
         
-        if(event.getEventType()=="hitShadow1") {
+        
+        if(event.getEventType()=="collideWithTopBrick") {
             System.out.println("Collision!");
+
+            Rectangle inter = Mario.getHitBox().intersection(brick3.getHitBox());
+            Rectangle inter1 = saveStateMario1.getHitBox().intersection(brick3.getHitBox());
+            Rectangle inter2 = saveStateMario2.getHitBox().intersection(brick3.getHitBox());
+
+            if(!inter.isEmpty()) {
+
+                //intesect from above, then bottom does not touch ground
+                //moreover, edge case
+                if(inter.getY()+inter.getHeight()>brick3.getyPos()
+                    && inter.getWidth()>=inter.getHeight()+5) {
+                        Mario.setOnGround(true);
+                }
+
+                //intersect from left, hitbox start from left of coin
+                else {
+
+                    if(inter.getX()==brick3.getxPos()) {
+                        Mario.setxPos(brick3.getxPos()-Mario.getWidth());
+                    }
+
+                    //intersect from right, hitbox start from right of coin
+                    if(inter.getX()+inter.getWidth()==brick3.getxPos()+brick3.getWidth()) {
+                        Mario.setxPos(brick3.getxPos()+brick3.getWidth());
+                    }
+                    Mario.setOnGround(false);
+                }
+
+
+            }
+
+        }
+        
+        if(event.getEventType()=="hitShadow1") {
+            System.out.println("Collision! with shado");
             Rectangle inter3 = Mario.getHitBox().intersection(saveStateMario1.getHitBox());
             if(!inter3.isEmpty()) {
 
