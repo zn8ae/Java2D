@@ -47,7 +47,11 @@ public class finalgameBrickJump extends Game implements IEventListener
 
     Brick button = new Brick("button","button.png");
     Brick button2 = new Brick("button2","button.png");
+    
+    
     Brick gate = new Brick("gate","gate.png");
+    Brick platform = new Brick("platform","platform.png");
+
     
     // For showing we can "reset" our game state
     Sprite ball = new Sprite("ball","ball.png");
@@ -346,6 +350,11 @@ public class finalgameBrickJump extends Game implements IEventListener
             	gate.setV((gate.getG()+gate.getV())/1);
         	}
         }
+        
+        
+        if(buttonPressed2 == false){
+        	brick.setAlpha(0);
+        }
     }
 
     /**
@@ -373,10 +382,7 @@ public class finalgameBrickJump extends Game implements IEventListener
 
 
         }
-        
-        if(buttonPressed2 == false){
-        	brick.setAlpha(0);
-        }
+
 
         if(saveStateMario1 != null && save1)
         	saveStateMario1.draw(g);
