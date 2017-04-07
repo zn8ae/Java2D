@@ -47,8 +47,8 @@ public class finalgameBrickJump extends Game implements IEventListener
 
     Brick button = new Brick("button","button.png");
     Brick button2 = new Brick("button2","button.png");
-    
-    
+    Brick button3 = new Brick("button","button.png");
+
     Brick gate = new Brick("gate","gate.png");
     Brick platform = new Brick("platform","platform.png");
 
@@ -70,6 +70,7 @@ public class finalgameBrickJump extends Game implements IEventListener
     GameClock gameTimer;
     int time;
     TweenJuggler juggler = new TweenJuggler();
+	private boolean buttonPressed3;
 
 
     public finalgameBrickJump() {
@@ -91,7 +92,7 @@ public class finalgameBrickJump extends Game implements IEventListener
         bgm.loop();
 
         
-        coin.setxPos(950);
+        coin.setxPos(50);
         coin.setyPos(100);
         
 
@@ -117,11 +118,18 @@ public class finalgameBrickJump extends Game implements IEventListener
         gate.setyPos(465);
         startingPositions.put(gate,new Point((int)gate.getxPos(), (int)gate.getyPos()));
         
+        platform.setxPos(415);
+        platform.setyPos(435);
+        startingPositions.put(platform,new Point((int)platform.getxPos(), (int)platform.getyPos()));
+        
         button.setxPos(300);
         button.setyPos(740);
         
         button2.setxPos(700);
         button2.setyPos(740);
+        
+        button3.setxPos(900);
+        button3.setyPos(100);
         
         ball.setxPos(300);
         ball.setyPos(10);
@@ -143,9 +151,11 @@ public class finalgameBrickJump extends Game implements IEventListener
         brick3.addEventListener(this, "collideWithTopBrick");
         button.addEventListener(this, "ButtonPressed");
         button2.addEventListener(this, "ButtonPressed2");
+        button3.addEventListener(this, "ButtonPressed3");
         saveStateMario1.addEventListener(this, "hitShadow1");
         saveStateMario2.addEventListener(this, "hitShadow2");
         gate.addEventListener(this,  "collide2");
+        platform.addEventListener(this,  "collide4");
 
         if (gameTimer == null) {
             gameTimer = new GameClock();
@@ -164,6 +174,8 @@ public class finalgameBrickJump extends Game implements IEventListener
     	
     	//For brick
     	buttonPressed2=false;
+    	
+    	buttonPressed3=false;
 
     	// Our "save" function key
 		if(pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_S)) && sFrames == 0){
@@ -230,6 +242,9 @@ public class finalgameBrickJump extends Game implements IEventListener
         	
         	button2.setDisplayImage("button.png");
         	button2.setyPos(740);
+        	
+        	button3.setDisplayImage("button.png");
+        	button3.setyPos(100);
         	
             //update y position accordingly
             Mario.setyPos(Mario.getyPos()+Mario.getV());
@@ -314,6 +329,21 @@ public class finalgameBrickJump extends Game implements IEventListener
 		     button.dispatchEvent(event);
 		 }
 		    
+		 if(Mario.getHitBox().intersects(button3.getHitBox())) {
+			   Event event = new Event("ButtonPressed3");
+			   button3.dispatchEvent(event);
+		 }
+
+		if(saveStateMario1.getHitBox().intersects(button3.getHitBox())) {
+		    Event event = new Event("ButtonPressed3");
+		    button3.dispatchEvent(event);
+		}
+		
+		if(saveStateMario2.getHitBox().intersects(button3.getHitBox())) {
+		    Event event = new Event("ButtonPressed3");
+		    button3.dispatchEvent(event);
+		}
+		 
 		 if(Mario.getHitBox().intersects(brick2.getHitBox())) {
 		
 		       Event event = new Event("collide2");
@@ -329,6 +359,11 @@ public class finalgameBrickJump extends Game implements IEventListener
 		if(Mario.getHitBox().intersects(gate.getHitBox())) {
 			Event event = new Event("gateCollision");
 			gate.dispatchEvent(event);
+		 }
+		//Collision with platform
+		if(Mario.getHitBox().intersects(platform.getHitBox())) {
+			Event event = new Event("collide4");
+			platform.dispatchEvent(event);
 		 }
 		  //Collision with top brick
 		if(Mario.getHitBox().intersects(brick3.getHitBox())) {
@@ -348,14 +383,24 @@ public class finalgameBrickJump extends Game implements IEventListener
         	if(gate.getyPos() < 465){
             	gate.setyPos(gate.getyPos()+gate.getV());
             	gate.setV((gate.getG()+gate.getV())/1);
+            	platform.setyPos(platform.getyPos()+platform.getV());
+            	platform.setV((platform.getG()+platform.getV())/1);
         	}
         }
         
+
         
         if(buttonPressed2 == false){
         	brick.setAlpha(0);
         }
-    }
+
+
+        if(buttonPressed3 == false){
+        	platform.setAlpha(0);
+        }
+     }
+
+
 
     /**
      * Engine automatically invokes draw() every frame as well. If we want to make sure Sun gets drawn to
@@ -374,11 +419,14 @@ public class finalgameBrickJump extends Game implements IEventListener
         	brick2.draw(g);
         	brick3.draw(g);
         	button2.draw(g);
+        	button3.draw(g);
         	//Used for drawing our hitboxes
         	//g.fillRect((int)button.getHitBox().getX(),(int) button.getHitBox().getY(),(int)button.getHitBox().getWidth(),(int)button.getHitBox().getHeight());
             coin.draw(g);
             Mario.draw(g);
             gate.draw(g);
+            platform.draw(g);
+
 
 
         }
@@ -427,8 +475,11 @@ public class finalgameBrickJump extends Game implements IEventListener
             
             if(gate.getyPos()>320){
             	gate.setyPos((gate.getyPos()-5));
+            	platform.setyPos((platform.getyPos()-5));
             }
             gate.setV(0);
+            platform.setV(0);
+
 
         }
         
@@ -439,6 +490,16 @@ public class finalgameBrickJump extends Game implements IEventListener
             button2.setDisplayImage("button_pressed.png");
             //Set position of the pressed button sprite a little bit lower so that it looks better
             button2.setyPos(753);
+            
+        }
+        
+        if(event.getEventType()=="ButtonPressed3") {
+        	platform.setAlpha(1);
+        	buttonPressed3 = true;
+            System.out.println("Button is being pressed3");
+            button3.setDisplayImage("button_pressed.png");
+            //Set position of the pressed button sprite a little bit lower so that it looks better
+            button3.setyPos(100);
             
         }
 
@@ -457,7 +518,7 @@ public class finalgameBrickJump extends Game implements IEventListener
 
         if(event.getEventType()=="collide") {
             System.out.println("Collision!");
-
+            
             Rectangle inter = Mario.getHitBox().intersection(button.getHitBox());
             Rectangle inter1 = saveStateMario1.getHitBox().intersection(button.getHitBox());
             Rectangle inter2 = saveStateMario2.getHitBox().intersection(button.getHitBox());
@@ -468,6 +529,7 @@ public class finalgameBrickJump extends Game implements IEventListener
                 //moreover, edge case
                 if(inter.getY()+inter.getHeight()>button.getyPos()
                     && inter.getWidth()>=inter.getHeight()+5) {
+                	    Mario.setyPos(button.getyPos()-Mario.getHeight());
                         Mario.setOnGround(true);
                 }
 
@@ -504,6 +566,7 @@ public class finalgameBrickJump extends Game implements IEventListener
                 if(inter.getY()+inter.getHeight()>=brick.getyPos()
                     && inter.getWidth()>=inter.getHeight()+5) {
                     if(inter.getY()+inter.getHeight()<=brick.getyPos()+(brick.getHeight()/2)) {
+                    	Mario.setyPos(brick.getyPos()-Mario.getHeight());
                         Mario.setOnGround(true);
                     } else {
                         Mario.setV(0);;
@@ -526,6 +589,41 @@ public class finalgameBrickJump extends Game implements IEventListener
             }
         }
         
+        if(event.getEventType()=="collide4" && (platform.getAlpha() == 1)) {
+            System.out.println("Collision!");
+            
+            Rectangle inter = Mario.getHitBox().intersection(platform.getHitBox());
+            Rectangle inter1 = saveStateMario1.getHitBox().intersection(platform.getHitBox());
+            Rectangle inter2 = saveStateMario2.getHitBox().intersection(platform.getHitBox());
+
+            if(!inter.isEmpty()) {
+
+                //intesect from above, then bottom does not touch ground
+                //moreover, edge case
+                if(inter.getY()+inter.getHeight()>platform.getyPos()
+                    && inter.getWidth()>=inter.getHeight()+5) {
+                	    Mario.setyPos(platform.getyPos()-Mario.getHeight());
+                        Mario.setOnGround(true);
+                }
+
+                //intersect from left, hitbox start from left of coin
+                else {
+
+                    if(inter.getX()==platform.getxPos()) {
+                        Mario.setxPos(platform.getxPos()-Mario.getWidth());
+                    }
+
+                    //intersect from right, hitbox start from right of coin
+                    if(inter.getX()+inter.getWidth()==platform.getxPos()+platform.getWidth()) {
+                        Mario.setxPos(platform.getxPos()+platform.getWidth());
+                    }
+                    Mario.setOnGround(false);
+                }
+
+
+            }
+
+        }
         
         if(event.getEventType()=="collideWithTopBrick") {
             System.out.println("Collision!");
@@ -572,7 +670,8 @@ public class finalgameBrickJump extends Game implements IEventListener
                 if(inter3.getY()+inter3.getHeight()>=saveStateMario1.getyPos()
                     && inter3.getWidth()>=inter3.getHeight()+5) {
                     if(inter3.getY()+inter3.getHeight()<=saveStateMario1.getyPos()+(saveStateMario1.getHeight()/2)) {
-                        Mario.setOnGround(true);
+                    	 Mario.setyPos(saveStateMario1.getyPos()-Mario.getHeight());
+                    	Mario.setOnGround(true);
                     } else {
                         Mario.setV(0);;
                         Mario.setyPos(saveStateMario1.getyPos()+saveStateMario1.getHeight());
@@ -605,7 +704,8 @@ public class finalgameBrickJump extends Game implements IEventListener
                 if(inter4.getY()+inter4.getHeight()>=saveStateMario2.getyPos()
                     && inter4.getWidth()>=inter4.getHeight()+5) {
                     if(inter4.getY()+inter4.getHeight()<=saveStateMario2.getyPos()+(saveStateMario2.getHeight()/2)) {
-                        Mario.setOnGround(true);
+                    	 Mario.setyPos(saveStateMario2.getyPos()-Mario.getHeight());
+                    	Mario.setOnGround(true);
                     } else {
                         Mario.setV(0);;
                         Mario.setyPos(saveStateMario2.getyPos()+saveStateMario2.getHeight());
@@ -639,7 +739,7 @@ public class finalgameBrickJump extends Game implements IEventListener
                 if(inter.getY()+inter.getHeight()>=gate.getyPos()
                     && inter.getWidth()>=inter.getHeight()+5) {
                     if(inter.getY()+inter.getHeight()<=gate.getyPos()+(gate.getHeight()/2)) {
-                        Mario.setOnGround(true);
+                        Mario.setOnGround(false);
                     } else {
                         Mario.setV(0);;
                         Mario.setyPos(gate.getyPos()+gate.getHeight());
@@ -673,6 +773,7 @@ public class finalgameBrickJump extends Game implements IEventListener
                 if(inter.getY()+inter.getHeight()>=brick2.getyPos()
                     && inter.getWidth()>=inter.getHeight()+5) {
                     if(inter.getY()+inter.getHeight()<=brick2.getyPos()+(brick2.getHeight()/2)) {
+                    	 Mario.setyPos(brick2.getyPos()-Mario.getHeight());
                         Mario.setOnGround(true);
                     } else {
                         Mario.setV(0);;
