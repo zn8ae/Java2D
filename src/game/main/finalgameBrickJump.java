@@ -631,7 +631,7 @@ public class finalgameBrickJump extends Game implements IEventListener
                 //moreover, edge case
                 if(inter.getY()+inter.getHeight()>=platform.getyPos()
                     && inter.getWidth()>=inter.getHeight()+5) {
-                    if(inter.getY()+inter.getHeight()<=platform.getyPos()+(platform.getHeight()/2)) {
+                    if(inter.getY()+inter.getHeight()<=platform.getyPos()+(platform.getHeight()/1.4)) {
                     	Mario.setyPos(platform.getyPos()-Mario.getHeight());
                         Mario.setOnGround(true);
                     } else {
@@ -717,7 +717,7 @@ public class finalgameBrickJump extends Game implements IEventListener
                 else {
 
                     if(inter.getX()==brick3.getxPos()) {
-                        Mario.setxPos(brick3.getxPos()-brick3.getWidth());
+                        Mario.setxPos(brick3.getxPos()-Mario.getWidth());
                     }
 
                     //intersect from right, hitbox start from right of coin
