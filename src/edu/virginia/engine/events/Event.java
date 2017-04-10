@@ -1,5 +1,7 @@
 package edu.virginia.engine.events;
 
+import edu.virginia.engine.display.Sprite;
+
 public class Event
 {
     private String eventType;
@@ -7,6 +9,10 @@ public class Event
 
     public Event(String eventType) {
         this.eventType=eventType;
+    }
+    public Event(String eventType, Sprite inSource) {
+        this.eventType=eventType;
+        source = inSource;
     }
        public String getEventType()
     {
