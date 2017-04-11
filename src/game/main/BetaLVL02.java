@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-public class BetaLVL01 extends Game implements IEventListener {
+public class BetaLVL02 extends Game implements IEventListener {
 	 //Size of our Game
 		static int MAXHEIGHT = 800;
 		static int MAXWIDTH = 1200;
@@ -38,7 +38,7 @@ public class BetaLVL01 extends Game implements IEventListener {
 		// Checking out how to use the level switcher
 		static Beta game;
 		int eFrames;
-
+		static BetaLVL01 level01;
 
 		// Player sprite and save state variables
 		AnimatedSprite player = new AnimatedSprite("player");
@@ -52,13 +52,12 @@ public class BetaLVL01 extends Game implements IEventListener {
 		// Button sprites and variables
 
 		// Platform sprites and variables
-	    Brick brick = new Brick("Brick","Brick.png");
 
 		// Hazards sprites and variables
 
 		// Objective sprites and variables
-		Sprite goal = new Sprite("goal","goal.png");
-		boolean inGoal = false;
+		Sprite door1 = new Sprite("door1","door1.png");
+		boolean inDoor1 = false;
 		
 		
 		
@@ -71,8 +70,8 @@ public class BetaLVL01 extends Game implements IEventListener {
 		GameClock gameTimer;
 		TweenJuggler juggler = new TweenJuggler();
 
-		public BetaLVL01() {
-			super("BetaLVL01", MAXWIDTH, MAXHEIGHT);
+		public BetaLVL02() {
+			super("BetaLVL02", MAXWIDTH, MAXHEIGHT);
 			
 			// Animated sprite, not doing anything now
 			List<String> animatedSpriteList = new ArrayList<String>();
@@ -95,13 +94,8 @@ public class BetaLVL01 extends Game implements IEventListener {
 			player.setyPos(640);
 			startingPositions.put(player, new Point((int) player.getxPos(), (int) player.getyPos()));
 
-			brick.setxPos(MAXWIDTH/2-100);
-			brick.setyPos(650);
-
-			
-			
-			goal.setxPos(MAXWIDTH-goal.getWidth()-200);
-			goal.setyPos(645);
+			door1.setxPos(MAXWIDTH/2-door1.getWidth());
+			door1.setyPos(635);
 			
 			// Player tweens
 			TweenTransitions transit = new TweenTransitions();
@@ -113,8 +107,7 @@ public class BetaLVL01 extends Game implements IEventListener {
 			// Event registering
 			saveState1.addEventListener(this, "playerCollision");
 			saveState2.addEventListener(this, "playerCollision");
-			brick.addEventListener(this, "playerCollision");
-			goal.addEventListener(this, "inDoor1Event");
+			door1.addEventListener(this, "inDoor1Event");
 
 
 			if (gameTimer == null) {
@@ -130,12 +123,12 @@ public class BetaLVL01 extends Game implements IEventListener {
 		@Override
 		public void update(ArrayList<String> pressedKeys) {
 			//Reset our flags at start of frame
-			inGoal = false;
+			inDoor1 = false;
 
 			//Door logic?
-			if (player.getHitBox().intersects(goal.getHitBox())) {			
-				Event event = new Event("inGoalEvent", goal);
-				goal.dispatchEvent(event);
+			if (player.getHitBox().intersects(door1.getHitBox())) {			
+				Event event = new Event("inDoor1Event", door1);
+				door1.dispatchEvent(event);
 			}
 			
 			
@@ -150,10 +143,9 @@ public class BetaLVL01 extends Game implements IEventListener {
 				
 				
 				//Check if we are intersecting with door1
-				if(inGoal && eFrames == 20){
-					game = new Beta();
-					game.start();
-					game.setLevelComplete(1);
+				if(inDoor1 && eFrames == 20){
+					level01 = new BetaLVL01();
+					level01.start();			
 					this.exitGame();
 				}
 
@@ -262,10 +254,7 @@ public class BetaLVL01 extends Game implements IEventListener {
 					Event event = new Event("playerCollision", saveState2);
 					saveState2.dispatchEvent(event);
 				}
-				if (player.getHitBox().intersects(brick.getHitBox())) {
-					Event event = new Event("playerCollision", brick);
-					brick.dispatchEvent(event);
-				}
+
 
 
 				juggler.getInstance().nextFrame();
@@ -296,8 +285,7 @@ public class BetaLVL01 extends Game implements IEventListener {
 			g.fillRect(0, 0, 1400, 900);
 
 			if (player != null) {
-				goal.draw(g);
-				brick.draw(g);
+				door1.draw(g);
 				player.draw(g);
 
 
@@ -333,8 +321,10 @@ public class BetaLVL01 extends Game implements IEventListener {
 			}
 
 			//Intersecting with door
-			if (event.getEventType() == "inGoalEvent") {
-				inGoal = true;
+			if (event.getEventType() == "inDoor1Event") {
+				System.out.println("inDoor1Event");
+				inDoor1 = true;
+
 			}
 
 			// Button pressed event

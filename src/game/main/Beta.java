@@ -31,8 +31,20 @@ import java.util.List;
 import java.util.Map.Entry;
 
 public class Beta extends Game implements IEventListener {
+	 //Size of our Game
+	static int MAXHEIGHT = 800;
+	static int MAXWIDTH = 1200;
+	
+	//Completed levels?
+	boolean lvl01Complete = false;
+	boolean lvl02Complete = false;
+
+	
 	// Checking out how to use the level switcher
 	static Beta game;
+	int eFrames;
+	static BetaLVL01 level01;
+	static BetaLVL02 level02;
 
 	// Player sprite and save state variables
 	AnimatedSprite player = new AnimatedSprite("player");
@@ -44,34 +56,42 @@ public class Beta extends Game implements IEventListener {
 	int sFrames = 0;
 
 	// Button sprites and variables
-	Brick button = new Brick("button", "button.png");
-	boolean buttonPressed = false;
 
 	// Platform sprites and variables
-	Brick brick4 = new Brick("Brick4", "Brick.png");
-	Brick platform2 = new Brick("platform2", "platform.png");
-	Brick gate = new Brick("gate", "gate.png");
 
 	// Hazards sprites and variables
-	Sprite ball = new Sprite("ball", "ball.png");
 
 	// Objective sprites and variables
-	Coin coin = new Coin("Coin", "Coin.png");
-	Tween coinTween = new Tween(coin);
-
+	Sprite door1 = new Sprite("door1","door1.png");
+	boolean inDoor1 = false;
+	Sprite door2 = new Sprite("door2","door2.png");
+	boolean inDoor2 = false;
+	
+	
+	
 	// Holds the starting positions of all our moveable sprites, so that they
-	// can be
-	// reset when we "save/reload"
+	// can be reset when we "save/reload"
 	HashMap<Sprite, Point> startingPositions = new HashMap<Sprite, Point>();
 
 	// Managers and singletons
 	QuestManager manager = new QuestManager();
 	GameClock gameTimer;
 	TweenJuggler juggler = new TweenJuggler();
+	
+	
+	public void setLevelComplete(int inLevel){
+		switch(inLevel){
+		case 1:
+			lvl01Complete = true;
+			break;
+		case 2:
+			break;
+		}
+	}
 
 	public Beta() {
-		super("Beta", 1200, 800);
-
+		super("Beta", MAXWIDTH, MAXHEIGHT);
+		
 		// Animated sprite, not doing anything now
 		List<String> animatedSpriteList = new ArrayList<String>();
 		animatedSpriteList.add("hero.png");
@@ -89,30 +109,16 @@ public class Beta extends Game implements IEventListener {
 		bgm.loop();
 
 		// Sprite positioning (SHOULD PROBABLY RE WORK THIS AT SOME POINT)
-		coin.setxPos(50);
-		coin.setyPos(50);
-
-		brick4.setxPos(300);
-		brick4.setyPos(500);
-
 		player.setxPos(20);
 		player.setyPos(640);
 		startingPositions.put(player, new Point((int) player.getxPos(), (int) player.getyPos()));
 
-		gate.setxPos(500);
-		gate.setyPos(465);
-		startingPositions.put(gate, new Point((int) gate.getxPos(), (int) gate.getyPos()));
-
-		platform2.setxPos(0);
-		platform2.setyPos(150);
-
-		button.setxPos(300);
-		button.setyPos(740);
-
-		ball.setxPos(300);
-		ball.setyPos(10);
-		startingPositions.put(ball, new Point((int) ball.getxPos(), (int) ball.getyPos()));
-
+		door1.setxPos(MAXWIDTH/2-door1.getWidth());
+		door1.setyPos(625);
+		
+		door2.setxPos(MAXWIDTH/2-door2.getWidth()+100);
+		door2.setyPos(625);
+		
 		// Player tweens
 		TweenTransitions transit = new TweenTransitions();
 		Tween marioTween = new Tween(player, transit);
@@ -121,14 +127,11 @@ public class Beta extends Game implements IEventListener {
 		juggler.add(marioTween);
 
 		// Event registering
-		coin.addEventListener(this, "CoinPickedUp");
-		brick4.addEventListener(this, "playerCollision");
 		saveState1.addEventListener(this, "playerCollision");
 		saveState2.addEventListener(this, "playerCollision");
-		gate.addEventListener(this, "playerCollision");
-		platform2.addEventListener(this, "playerCollision");
-		
-		button.addEventListener(this, "ButtonPressed");
+		door1.addEventListener(this, "inDoor1Event");
+		door2.addEventListener(this, "inDoor2Event");
+
 
 
 		if (gameTimer == null) {
@@ -143,11 +146,52 @@ public class Beta extends Game implements IEventListener {
 	 */
 	@Override
 	public void update(ArrayList<String> pressedKeys) {
-		// For gate
-		buttonPressed = false;
+		//Reset our flags at start of frame
+		inDoor1 = false;
+		inDoor2 = false;
+
+
+		//Door logic?
+		if (player.getHitBox().intersects(door1.getHitBox())) {			
+			Event event = new Event("inDoor1Event", door1);
+			door1.dispatchEvent(event);
+		}
+		if (player.getHitBox().intersects(door2.getHitBox())) {			
+			Event event = new Event("inDoor2Event", door2);
+			door2.dispatchEvent(event);
+		}
+		
+		
+		///Key logic
+		if (pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_E)) && eFrames == 0) {
+			// A ghetto way of making sure this s key if statement is called at
+			// max every 10 frames
+			eFrames = 20;
+			
+			
+			
+			
+			//Check if we are intersecting with door1
+			if(inDoor1 && eFrames == 20){
+				level01 = new BetaLVL01();
+				level01.start();			
+				this.exitGame();
+			}
+			
+			//Check if we are intersecting with door2
+			if(inDoor2 && eFrames == 20){
+				level02 = new BetaLVL02();
+				level02.start();			
+				this.exitGame();
+			}
+
+
+			
+
+		}
 
 		// Our "save" function key
-		if (pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_S)) && sFrames == 0) {
+		if (pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_SPACE)) && sFrames == 0) {
 
 			// Figure out where to save our old player ghost
 			if (save1 == false) {
@@ -201,18 +245,11 @@ public class Beta extends Game implements IEventListener {
 			sFrames = 10;
 		}
 
-		if (player != null && button != null) {
-
-			// Resetting the button if it is not being stepped on
-			button.setDisplayImage("button.png");
-			button.setyPos(740);
+		//hitbox logic
+		if (player != null) {
 
 			// Jumping and falling
 			player.setyPos(player.getyPos() + player.getV());
-
-			// Give ball velocity so it falls
-			ball.setyPos(ball.getyPos() + ball.getV());
-			ball.setV((ball.getG() + ball.getV()) / 1.1);
 
 			// Check if we are on ground?
 			if (player.getyPos() >= 650) {
@@ -244,12 +281,6 @@ public class Beta extends Game implements IEventListener {
 				player.setOnGround(false);
 			}
 
-			// Coin hitbox
-			if (player.getHitBox().intersects(coin.getHitBox())) {
-				System.out.println("Hit!!");
-				PickedUpEvent event = new PickedUpEvent();
-				coin.dispatchEvent(event);
-			}
 			// Savestate hit boxes
 			if (player.getHitBox().intersects(saveState1.getHitBox())) {
 				Event event = new Event("playerCollision", saveState1);
@@ -259,55 +290,22 @@ public class Beta extends Game implements IEventListener {
 				Event event = new Event("playerCollision", saveState2);
 				saveState2.dispatchEvent(event);
 			}
-			//Button hitboxes
-			if (player.getHitBox().intersects(button.getHitBox())) {
-				Event event = new Event("ButtonPressed");
-				button.dispatchEvent(event);
-			}
-			if (saveState1.getHitBox().intersects(button.getHitBox())) {
-				Event event = new Event("ButtonPressed");
-				button.dispatchEvent(event);
-			}
-			if (saveState2.getHitBox().intersects(button.getHitBox())) {
-				Event event = new Event("ButtonPressed");
-				button.dispatchEvent(event);
-			}
 
-			// Collision with gate
-			if (player.getHitBox().intersects(gate.getHitBox())) {
-				Event event = new Event("gateCollision", gate);
-				gate.dispatchEvent(event);
-			}
 
-			// Collision with top platform
-			if (player.getHitBox().intersects(platform2.getHitBox())) {
-				Event event = new Event("playerCollision", platform2);
-				platform2.dispatchEvent(event);
-			}
-
-			// Collision with near coin brick
-			if (player.getHitBox().intersects(brick4.getHitBox())) {
-				Event event = new Event("playerCollision", brick4);
-				brick4.dispatchEvent(event);
-			}
 
 			juggler.getInstance().nextFrame();
 
 		}
 
-		//Making it so we can only hit S once every ten frames
+		// Making it so we can only hit S once every ten frames
 		if (sFrames > 0) {
 			sFrames--;
 		}
 
-		//Resetting gate if buttonPressed is false
-		if (buttonPressed == false) {
-			if (gate.getyPos() < 465) {
-				gate.setyPos(gate.getyPos() + gate.getV());
-				gate.setV((gate.getG() + gate.getV()) / 1);
-			}
+		//Making it so we can only hit E once every ten frames
+		if (eFrames > 0) {
+			eFrames--;
 		}
-
 	}
 
 	/**
@@ -318,22 +316,23 @@ public class Beta extends Game implements IEventListener {
 	@Override
 	public void draw(Graphics g) {
 
-		//Background
+		// Background
 		g.setColor(Color.GRAY);
 		g.fillRect(0, 0, 1400, 900);
+		
+		
+		if(lvl01Complete && door2 != null){
+			door2.draw(g);
+		}
 
-		if (player != null && button != null) {
-			button.draw(g);
-			ball.draw(g);
-			brick4.draw(g);
-			coin.draw(g);
+		if (player != null) {
+			door1.draw(g);
 			player.draw(g);
-			gate.draw(g);
-			platform2.draw(g);
+
 
 		}
 
-		//Draw savestates
+		// Draw savestates
 		if (saveState1 != null && save1)
 			saveState1.draw(g);
 		if (saveState2 != null && save2)
@@ -354,79 +353,33 @@ public class Beta extends Game implements IEventListener {
 	// Where all our events are for right now
 
 	public void handleEvent(Event event) {
-		
-		//Objective event
+
+		// Objective event
 		if (event.getEventType() == "CoinPickedUp") {
 			player.setAlpha(0);
 			System.out.println("Quest is completed!");
 
-			coinTween.animate(TweenableParams.xPos, 950, 420, 1500);
-			coinTween.animate(TweenableParams.yPos, 100, 230, 1500);
-			coinTween.animate(TweenableParams.scaleX, 1, 3, 1500);
-			coinTween.animate(TweenableParams.scaleY, 1, 3, 1500);
-			coinTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
-
-			juggler.add(coinTween);
 		}
 
-		//Button pressed event
+		//Intersecting with door1
+		if (event.getEventType() == "inDoor1Event") {
+			System.out.println("inDoor1Event");
+			inDoor1 = true;
+
+		}
+		
+		//Intersecting with door2
+		if (event.getEventType() == "inDoor2Event") {
+			System.out.println("inDoor2Event");
+			inDoor2 = true;
+
+		}
+
+		// Button pressed event
 		if (event.getEventType() == "ButtonPressed") {
-			buttonPressed = true;
 			System.out.println("Button is being pressed");
-			button.setDisplayImage("button_pressed.png");
 			// Set position of the pressed button sprite a little bit lower so
 			// that it looks better
-			button.setyPos(753);
-
-			if (gate.getyPos() > 320) {
-				gate.setyPos((gate.getyPos() - 5));
-			}
-			gate.setV(0);
-
-		}
-
-		// Tween event
-		if (event.getEventType() == TweenEvent.TWEEN_COMPLETE_EVENT) {
-			coinTween.removeEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
-			TweenTransitions transit = new TweenTransitions();
-			Tween fadeTween = new Tween(coin, transit);
-			fadeTween.animate(TweenableParams.alpha, 1, 0, 2000);
-			fadeTween.animate(TweenableParams.rotation, 1, 30, 2000);
-			juggler.add(fadeTween);
-		}
-
-		if (event.getEventType() == "collide") {
-			System.out.println("Collision!");
-
-			Rectangle inter = player.getHitBox().intersection(button.getHitBox());
-			Rectangle inter1 = saveState1.getHitBox().intersection(button.getHitBox());
-			Rectangle inter2 = saveState2.getHitBox().intersection(button.getHitBox());
-
-			if (!inter.isEmpty()) {
-
-				// intesect from above, then bottom does not touch ground
-				// moreover, edge case
-				if (inter.getY() + inter.getHeight() > button.getyPos() && inter.getWidth() >= inter.getHeight() + 5) {
-					player.setyPos(button.getyPos() - player.getHeight());
-					player.setOnGround(true);
-
-				}
-
-				// intersect from left, hitbox start from left of coin
-				else {
-
-					if (inter.getX() == button.getxPos()) {
-						player.setxPos(button.getxPos() - player.getWidth());
-					}
-
-					// intersect from right, hitbox start from right of coin
-					if (inter.getX() + inter.getWidth() == button.getxPos() + button.getWidth()) {
-						player.setxPos(button.getxPos() + button.getWidth());
-					}
-					player.setOnGround(false);
-				}
-
-			}
 
 		}
 
@@ -461,42 +414,6 @@ public class Beta extends Game implements IEventListener {
 					// intersect from right, hitbox start from right of coin
 					if (inter.getX() + inter.getWidth() == source.getxPos() + source.getWidth()) {
 						player.setxPos(source.getxPos() + source.getWidth());
-					}
-					player.setOnGround(false);
-				}
-			}
-		}
-
-	
-
-		if (event.getEventType() == "gateCollision") {
-			System.out.println("Collision! with gate");
-
-			Rectangle inter = player.getHitBox().intersection(gate.getHitBox());
-
-			if (!inter.isEmpty()) {
-
-				// intesect from above, then bottom does not touch ground
-				// moreover, edge case
-				if (inter.getY() + inter.getHeight() >= gate.getyPos() && inter.getWidth() >= inter.getHeight() + 5) {
-					if (inter.getY() + inter.getHeight() <= gate.getyPos() + (gate.getHeight() / 2)) {
-						player.setOnGround(false);
-
-					} else {
-						player.setV(0);
-						player.setyPos(gate.getyPos() + gate.getHeight());
-					}
-				}
-				// intersect from left, hitbox start from left of coin
-				else {
-
-					if (inter.getX() == gate.getxPos()) {
-						player.setxPos(gate.getxPos() - player.getWidth());
-					}
-
-					// intersect from right, hitbox start from right of coin
-					if (inter.getX() + inter.getWidth() == gate.getxPos() + gate.getWidth()) {
-						player.setxPos(gate.getxPos() + gate.getWidth());
 					}
 					player.setOnGround(false);
 				}
