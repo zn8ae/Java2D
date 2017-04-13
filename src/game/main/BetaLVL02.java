@@ -38,7 +38,6 @@ public class BetaLVL02 extends Game implements IEventListener {
 		// Checking out how to use the level switcher
 		static Beta game;
 		int eFrames;
-		static BetaLVL01 level01;
 
 		// Player sprite and save state variables
 		AnimatedSprite player = new AnimatedSprite("player");
@@ -56,8 +55,8 @@ public class BetaLVL02 extends Game implements IEventListener {
 		// Hazards sprites and variables
 
 		// Objective sprites and variables
-		Sprite door1 = new Sprite("door1","door1.png");
-		boolean inDoor1 = false;
+		Sprite goal = new Sprite("goal","goal.png");
+		boolean inGoal = false;
 		
 		
 		
@@ -94,8 +93,8 @@ public class BetaLVL02 extends Game implements IEventListener {
 			player.setyPos(640);
 			startingPositions.put(player, new Point((int) player.getxPos(), (int) player.getyPos()));
 
-			door1.setxPos(MAXWIDTH/2-door1.getWidth());
-			door1.setyPos(635);
+			goal.setxPos(MAXWIDTH/2-goal.getWidth());
+			goal.setyPos(645);
 			
 			// Player tweens
 			TweenTransitions transit = new TweenTransitions();
@@ -107,7 +106,7 @@ public class BetaLVL02 extends Game implements IEventListener {
 			// Event registering
 			saveState1.addEventListener(this, "playerCollision");
 			saveState2.addEventListener(this, "playerCollision");
-			door1.addEventListener(this, "inDoor1Event");
+			goal.addEventListener(this, "inDoor1Event");
 
 
 			if (gameTimer == null) {
@@ -123,12 +122,12 @@ public class BetaLVL02 extends Game implements IEventListener {
 		@Override
 		public void update(ArrayList<String> pressedKeys) {
 			//Reset our flags at start of frame
-			inDoor1 = false;
+			inGoal = false;
 
 			//Door logic?
-			if (player.getHitBox().intersects(door1.getHitBox())) {			
-				Event event = new Event("inDoor1Event", door1);
-				door1.dispatchEvent(event);
+			if (player.getHitBox().intersects(goal.getHitBox())) {			
+				Event event = new Event("inDoor1Event", goal);
+				goal.dispatchEvent(event);
 			}
 			
 			
@@ -143,9 +142,10 @@ public class BetaLVL02 extends Game implements IEventListener {
 				
 				
 				//Check if we are intersecting with door1
-				if(inDoor1 && eFrames == 20){
-					level01 = new BetaLVL01();
-					level01.start();			
+				if(inGoal && eFrames == 20){
+					game = new Beta();
+					game.start();
+					game.setLevelComplete(1);
 					this.exitGame();
 				}
 
@@ -285,7 +285,7 @@ public class BetaLVL02 extends Game implements IEventListener {
 			g.fillRect(0, 0, 1400, 900);
 
 			if (player != null) {
-				door1.draw(g);
+				goal.draw(g);
 				player.draw(g);
 
 
@@ -323,7 +323,7 @@ public class BetaLVL02 extends Game implements IEventListener {
 			//Intersecting with door
 			if (event.getEventType() == "inDoor1Event") {
 				System.out.println("inDoor1Event");
-				inDoor1 = true;
+				inGoal = true;
 
 			}
 

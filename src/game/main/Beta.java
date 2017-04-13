@@ -36,8 +36,9 @@ public class Beta extends Game implements IEventListener {
 	static int MAXWIDTH = 1200;
 	
 	//Completed levels?
-	boolean lvl01Complete = false;
+	boolean lvl01Complete = true;
 	boolean lvl02Complete = false;
+	boolean lvl03Complete = false;
 
 	
 	// Checking out how to use the level switcher
@@ -45,6 +46,8 @@ public class Beta extends Game implements IEventListener {
 	int eFrames;
 	static BetaLVL01 level01;
 	static BetaLVL02 level02;
+	static BetaLVL03 level03;
+
 
 	// Player sprite and save state variables
 	AnimatedSprite player = new AnimatedSprite("player");
@@ -66,6 +69,8 @@ public class Beta extends Game implements IEventListener {
 	boolean inDoor1 = false;
 	Sprite door2 = new Sprite("door2","door2.png");
 	boolean inDoor2 = false;
+	Sprite door3 = new Sprite("door3","door3.png");
+	boolean inDoor3 = false;
 	
 	
 	
@@ -88,6 +93,7 @@ public class Beta extends Game implements IEventListener {
 			break;
 		}
 	}
+	
 
 	public Beta() {
 		super("Beta", MAXWIDTH, MAXHEIGHT);
@@ -113,11 +119,14 @@ public class Beta extends Game implements IEventListener {
 		player.setyPos(640);
 		startingPositions.put(player, new Point((int) player.getxPos(), (int) player.getyPos()));
 
-		door1.setxPos(MAXWIDTH/2-door1.getWidth());
+		door1.setxPos(MAXWIDTH/2-door1.getWidth()-200);
 		door1.setyPos(625);
 		
-		door2.setxPos(MAXWIDTH/2-door2.getWidth()+100);
+		door2.setxPos(MAXWIDTH/2-door2.getWidth());
 		door2.setyPos(625);
+		
+		door3.setxPos(MAXWIDTH/2-door3.getWidth()+200);
+		door3.setyPos(625);
 		
 		// Player tweens
 		TweenTransitions transit = new TweenTransitions();
@@ -131,7 +140,7 @@ public class Beta extends Game implements IEventListener {
 		saveState2.addEventListener(this, "playerCollision");
 		door1.addEventListener(this, "inDoor1Event");
 		door2.addEventListener(this, "inDoor2Event");
-
+		door3.addEventListener(this, "inDoor3Event");
 
 
 		if (gameTimer == null) {
@@ -149,6 +158,8 @@ public class Beta extends Game implements IEventListener {
 		//Reset our flags at start of frame
 		inDoor1 = false;
 		inDoor2 = false;
+		inDoor3 = false;
+
 
 
 		//Door logic?
@@ -160,7 +171,41 @@ public class Beta extends Game implements IEventListener {
 			Event event = new Event("inDoor2Event", door2);
 			door2.dispatchEvent(event);
 		}
+		if (player.getHitBox().intersects(door3.getHitBox())) {			
+			Event event = new Event("inDoor3Event", door3);
+			door3.dispatchEvent(event);
+		}
 		
+		//Building in what we would do if we die, debugging with r key
+		if (pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_R))){
+			save1 = false;
+			save2 = false;
+			
+			// We have a hashMap of <Sprite, Starting x and y>
+			Iterator entries = startingPositions.entrySet().iterator();
+			while (entries.hasNext()) {
+				// Grab our sprite and Point
+				Entry thisEntry = (Entry) entries.next();
+				Object sprite = thisEntry.getKey();
+				Object pos = thisEntry.getValue();
+
+				// Set our sprite back to it's starting position
+				((Sprite) sprite).setxPos(((Point) pos).getX());
+				((Sprite) sprite).setyPos(((Point) pos).getY());
+
+				// An if check to replay our tween if its the player
+				if (((Sprite) sprite).getId().equals("player")) {
+					TweenTransitions transit = new TweenTransitions();
+					Tween marioTween = new Tween(player, transit);
+
+					marioTween.animate(TweenableParams.alpha, 0, 1, 1000);
+					marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
+
+					juggler.add(marioTween);
+				}
+			}
+			
+		}
 		
 		///Key logic
 		if (pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_E)) && eFrames == 0) {
@@ -182,6 +227,13 @@ public class Beta extends Game implements IEventListener {
 			if(inDoor2 && eFrames == 20){
 				level02 = new BetaLVL02();
 				level02.start();			
+				this.exitGame();
+			}
+			
+			//Check if we are intersecting with door3
+			if(inDoor3 && eFrames == 20){
+				level03 = new BetaLVL03();
+				level03.start();			
 				this.exitGame();
 			}
 
@@ -327,6 +379,7 @@ public class Beta extends Game implements IEventListener {
 
 		if (player != null) {
 			door1.draw(g);
+			door3.draw(g);
 			player.draw(g);
 
 
@@ -372,6 +425,13 @@ public class Beta extends Game implements IEventListener {
 		if (event.getEventType() == "inDoor2Event") {
 			System.out.println("inDoor2Event");
 			inDoor2 = true;
+
+		}
+		
+		//Intersecting with door3
+		if (event.getEventType() == "inDoor3Event") {
+			System.out.println("inDoor3Event");
+			inDoor3 = true;
 
 		}
 
