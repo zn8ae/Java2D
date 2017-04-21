@@ -36,10 +36,12 @@ public class Beta extends Game implements IEventListener {
 	static int MAXWIDTH = 1200;
 	
 	//Completed levels?
-	boolean lvl01Complete = true;
+	boolean lvl01Complete = false;
 	boolean lvl02Complete = false;
 	boolean lvl03Complete = false;
 	boolean lvl04Complete = false;
+	boolean lvl05Complete = false;
+	boolean lvl06Complete = false;
 
 	
 	// Checking out how to use the level switcher
@@ -49,6 +51,9 @@ public class Beta extends Game implements IEventListener {
 	static BetaLVL02 level02;
 	static BetaLVL03 level03;
 	static BetaLVL04 level04;
+	static BetaLVL05 level05;
+	static BetaLVL06 level06;
+
 
 
 	// Player sprite and save state variables
@@ -75,6 +80,10 @@ public class Beta extends Game implements IEventListener {
 	boolean inDoor3 = false;
 	Sprite door4 = new Sprite("door4","door4.png");
 	boolean inDoor4 = false;
+	Sprite door5 = new Sprite("door5","door5.png");
+	boolean inDoor5 = false;
+	Sprite door6 = new Sprite("door6","door6.png");
+	boolean inDoor6 = false;
 	
 	
 	
@@ -132,8 +141,14 @@ public class Beta extends Game implements IEventListener {
 		door3.setxPos(MAXWIDTH/2-door3.getWidth()+200);
 		door3.setyPos(625);
 		
-		door4.setxPos(MAXWIDTH/2-door4.getWidth()+200);
+		door4.setxPos(MAXWIDTH/2-door4.getWidth()-200);
 		door4.setyPos(400);
+		
+		door5.setxPos(MAXWIDTH/2-door5.getWidth());
+		door5.setyPos(400);
+		
+		door6.setxPos(MAXWIDTH/2-door6.getWidth()+200);
+		door6.setyPos(400);
 		
 		// Player tweens
 		TweenTransitions transit = new TweenTransitions();
@@ -149,6 +164,8 @@ public class Beta extends Game implements IEventListener {
 		door2.addEventListener(this, "inDoor2Event");
 		door3.addEventListener(this, "inDoor3Event");
 		door4.addEventListener(this, "inDoor4Event");
+		door5.addEventListener(this, "inDoor5Event");
+		door6.addEventListener(this, "inDoor6Event");
 
 
 		if (gameTimer == null) {
@@ -168,6 +185,8 @@ public class Beta extends Game implements IEventListener {
 		inDoor2 = false;
 		inDoor3 = false;
 		inDoor4 = false;
+		inDoor5 = false;
+		inDoor6 = false;
 
 
 
@@ -187,6 +206,14 @@ public class Beta extends Game implements IEventListener {
 		if (player.getHitBox().intersects(door4.getHitBox())) {			
 			Event event = new Event("inDoor4Event", door4);
 			door4.dispatchEvent(event);
+		}
+		if (player.getHitBox().intersects(door5.getHitBox())) {			
+			Event event = new Event("inDoor5Event", door5);
+			door5.dispatchEvent(event);
+		}
+		if (player.getHitBox().intersects(door6.getHitBox())) {			
+			Event event = new Event("inDoor4Event", door6);
+			door6.dispatchEvent(event);
 		}
 		
 		//Building in what we would do if we die, debugging with r key
@@ -250,10 +277,23 @@ public class Beta extends Game implements IEventListener {
 				this.exitGame();
 			}
 			
-			//Check if we are intersecting with door3
+			//Check if we are intersecting with door4
 			if(inDoor4 && eFrames == 20){
 				level04 = new BetaLVL04();
 				level04.start();			
+				this.exitGame();
+			}
+			//Check if we are intersecting with door5
+			if(inDoor5 && eFrames == 20){
+				level05 = new BetaLVL05();
+				level05.start();			
+				this.exitGame();
+			}
+			
+			//Check if we are intersecting with door6
+			if(inDoor6 && eFrames == 20){
+				level06 = new BetaLVL06();
+				level06.start();			
 				this.exitGame();
 			}
 
@@ -401,6 +441,8 @@ public class Beta extends Game implements IEventListener {
 			door1.draw(g);
 			door3.draw(g);
 			door4.draw(g);
+			door5.draw(g);
+			door6.draw(g);
 			player.draw(g);
 
 
@@ -455,10 +497,22 @@ public class Beta extends Game implements IEventListener {
 			inDoor3 = true;
 
 		}
-		//Intersecting with door3
+		//Intersecting with door4
 		if (event.getEventType() == "inDoor4Event") {
 			System.out.println("inDoor4Event");
 			inDoor4 = true;
+
+		}
+		//Intersecting with door5
+		if (event.getEventType() == "inDoor5Event") {
+			System.out.println("inDoor5Event");
+			inDoor5 = true;
+
+		}
+		//Intersecting with door6
+		if (event.getEventType() == "inDoor6Event") {
+			System.out.println("inDoor6Event");
+			inDoor6 = true;
 
 		}
 
