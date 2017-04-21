@@ -101,7 +101,7 @@ public class finalgameBrickJump extends Game implements IEventListener
         complete.setyPivot(280);
         
         goal.setxPos(50);
-        goal.setyPos(50);
+        goal.setyPos(30);
         
 
         brick.setxPos(775);
@@ -159,7 +159,7 @@ public class finalgameBrickJump extends Game implements IEventListener
 		
         marioTween.animate(TweenableParams.alpha, 0, 1, 1000);
         marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
-        angryTween.animate(TweenableParams.yPos, 225, 675, 2000);
+        angryTween.animate(TweenableParams.yPos, 225, 680, 2000);
         
 
         juggler.add(marioTween);
@@ -255,7 +255,7 @@ public class finalgameBrickJump extends Game implements IEventListener
 
 			        marioTween.animate(TweenableParams.alpha, 0, 1, 1000);
 			        marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
-			        angryTween.animate(TweenableParams.yPos, 225, 675, 2000);
+			        angryTween.animate(TweenableParams.yPos, 225, 680, 2000);
 
 			        juggler.add(marioTween);
 			        juggler.add(angryTween);
