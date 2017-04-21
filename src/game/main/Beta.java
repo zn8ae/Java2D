@@ -52,7 +52,7 @@ public class Beta extends Game implements IEventListener {
 	static BetaLVL03 level03;
 	static BetaLVL04 level04;
 	static BetaLVL05 level05;
-	static BetaLVL06 level06;
+	static finalgameBrickJump level06;
 
 
 
@@ -85,8 +85,6 @@ public class Beta extends Game implements IEventListener {
 	Sprite door6 = new Sprite("door6","door6.png");
 	boolean inDoor6 = false;
 	
-	
-	
 	// Holds the starting positions of all our moveable sprites, so that they
 	// can be reset when we "save/reload"
 	HashMap<Sprite, Point> startingPositions = new HashMap<Sprite, Point>();
@@ -96,6 +94,8 @@ public class Beta extends Game implements IEventListener {
 	GameClock gameTimer;
 	TweenJuggler juggler = new TweenJuggler();
 	
+	// BGM
+	Sound bgm;
 	
 	public void setLevelComplete(int inLevel){
 		switch(inLevel){
@@ -123,10 +123,14 @@ public class Beta extends Game implements IEventListener {
 		animations.put("run", num);
 		player.setAnimations(animations);
 
-		// Sound info
-		Sound bgm = new Sound("cooking.wav");
-		bgm.loop();
-
+		// 
+		if(bgm!=null) {
+			bgm.stop();
+		} else {
+			bgm = new Sound("cooking.wav");
+			bgm.loop();
+		}
+		
 		// Sprite positioning (SHOULD PROBABLY RE WORK THIS AT SOME POINT)
 		player.setxPos(20);
 		player.setyPos(640);
@@ -189,7 +193,6 @@ public class Beta extends Game implements IEventListener {
 		inDoor6 = false;
 
 
-
 		//Door logic
 		if (player.getHitBox().intersects(door1.getHitBox())) {			
 			Event event = new Event("inDoor1Event", door1);
@@ -212,7 +215,7 @@ public class Beta extends Game implements IEventListener {
 			door5.dispatchEvent(event);
 		}
 		if (player.getHitBox().intersects(door6.getHitBox())) {			
-			Event event = new Event("inDoor4Event", door6);
+			Event event = new Event("inDoor6Event", door6);
 			door6.dispatchEvent(event);
 		}
 		
@@ -255,7 +258,6 @@ public class Beta extends Game implements IEventListener {
 			
 			
 			
-			
 			//Check if we are intersecting with door1
 			if(inDoor1 && eFrames == 20){
 				level01 = new BetaLVL01();
@@ -292,7 +294,7 @@ public class Beta extends Game implements IEventListener {
 			
 			//Check if we are intersecting with door6
 			if(inDoor6 && eFrames == 20){
-				level06 = new BetaLVL06();
+				level06 = new finalgameBrickJump();
 				level06.start();			
 				this.exitGame();
 			}
