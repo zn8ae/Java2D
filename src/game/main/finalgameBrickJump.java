@@ -100,8 +100,8 @@ public class finalgameBrickJump extends Game implements IEventListener
         complete.setxPivot(200);
         complete.setyPivot(280);
         
-        goal.setxPos(50);
-        goal.setyPos(30);
+        goal.setxPos(30);
+        goal.setyPos(35);
         
 
         brick.setxPos(775);
@@ -117,7 +117,7 @@ public class finalgameBrickJump extends Game implements IEventListener
         brick3.setxPos(650);
         brick3.setyPos(300);
         
-        brick4.setxPos(300);
+        brick4.setxPos(220);
         brick4.setyPos(225);
 
         Mario.setxPos(20);
@@ -133,7 +133,7 @@ public class finalgameBrickJump extends Game implements IEventListener
         platform.setyPos(435);
         startingPositions.put(platform,new Point((int)platform.getxPos(), (int)platform.getyPos()));
         
-        platform2.setxPos(0);
+        platform2.setxPos(20);
         platform2.setyPos(150);
         
         button.setxPos(300);
@@ -159,7 +159,7 @@ public class finalgameBrickJump extends Game implements IEventListener
 		
         marioTween.animate(TweenableParams.alpha, 0, 1, 1000);
         marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
-        angryTween.animate(TweenableParams.yPos, 225, 680, 2000);
+        angryTween.animate(TweenableParams.yPos, 225, 700, 2000);
         
 
         juggler.add(marioTween);

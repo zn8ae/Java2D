@@ -38,7 +38,7 @@ public class BetaLVL05 extends Game implements IEventListener {
 		// Checking out how to use the level switcher
 		static Beta game;
 		int eFrames;
-
+		Sound bgm;
 
 		// Player sprite and save state variables
 		AnimatedSprite player = new AnimatedSprite("player");
@@ -87,7 +87,7 @@ public class BetaLVL05 extends Game implements IEventListener {
 			player.setAnimations(animations);
 
 			// Sound info
-			Sound bgm = new Sound("cooking.wav");
+			bgm = new Sound("cooking.wav");
 			bgm.loop();
 
 			// Sprite positioning (SHOULD PROBABLY RE WORK THIS AT SOME POINT)
@@ -151,6 +151,7 @@ public class BetaLVL05 extends Game implements IEventListener {
 				
 				//Check if we are intersecting with door1
 				if(inGoal && eFrames == 20){
+					bgm.stop();
 					game = new Beta();
 					game.start();
 					game.setLevelComplete(5);

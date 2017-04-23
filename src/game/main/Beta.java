@@ -52,7 +52,7 @@ public class Beta extends Game implements IEventListener {
 	static BetaLVL03 level03;
 	static BetaLVL04 level04;
 	static BetaLVL05 level05;
-	static finalgameBrickJump level06;
+	static BetaLVL06 level06;
 
 
 
@@ -281,13 +281,15 @@ public class Beta extends Game implements IEventListener {
 			
 			//Check if we are intersecting with door1
 			if(inDoor1 && eFrames == 20){
+				bgm.stop();
 				level01 = new BetaLVL01();
-				level01.start();			
+				level01.start();	
 				this.exitGame();
 			}
 			
 			//Check if we are intersecting with door2
 			if(inDoor2 && eFrames == 20){
+				bgm.stop();
 				level02 = new BetaLVL02();
 				level02.start();			
 				this.exitGame();
@@ -295,6 +297,7 @@ public class Beta extends Game implements IEventListener {
 			
 			//Check if we are intersecting with door3
 			if(inDoor3 && eFrames == 20){
+				bgm.stop();
 				level03 = new BetaLVL03();
 				level03.start();			
 				this.exitGame();
@@ -302,12 +305,14 @@ public class Beta extends Game implements IEventListener {
 			
 			//Check if we are intersecting with door4
 			if(inDoor4 && eFrames == 20){
+				bgm.stop();
 				level04 = new BetaLVL04();
 				level04.start();			
 				this.exitGame();
 			}
 			//Check if we are intersecting with door5
 			if(inDoor5 && eFrames == 20){
+				bgm.stop();
 				level05 = new BetaLVL05();
 				level05.start();			
 				this.exitGame();
@@ -315,7 +320,8 @@ public class Beta extends Game implements IEventListener {
 			
 			//Check if we are intersecting with door6
 			if(inDoor6 && eFrames == 20){
-				level06 = new finalgameBrickJump();
+				bgm.stop();
+				level06 = new BetaLVL06();
 				level06.start();			
 				this.exitGame();
 			}
