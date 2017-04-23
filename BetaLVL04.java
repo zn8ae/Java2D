@@ -57,6 +57,9 @@ public class BetaLVL04 extends Game implements IEventListener {
 		    Sprite gate = new Sprite("gate", "gate.png");
 
 			// Hazards sprites and variables
+		    Brick bouncyBrick = new Brick("bouncyBrick", "BouncyBrick.png");
+		    Tween roveBrickL = new Tween(bouncyBrick);
+		    Tween roveBrickR = new Tween(bouncyBrick);
 
 			// Objective sprites and variables
 			Sprite goal = new Sprite("goal","goal.png");
@@ -103,6 +106,9 @@ public class BetaLVL04 extends Game implements IEventListener {
 				button.setxPos(400);
 				button.setyPos(740);
 				
+				bouncyBrick.setxPos(100);
+				bouncyBrick.setyPos(500);
+				
 				goal.setxPos(MAXWIDTH-goal.getWidth()-200);
 				goal.setyPos(250);
 				
@@ -119,6 +125,9 @@ public class BetaLVL04 extends Game implements IEventListener {
 				gate.addEventListener(this, "playerCollision");
 				button.addEventListener(this, "buttonPressed");
 				goal.addEventListener(this, "inGoalEvent");
+				bouncyBrick.addEventListener(this, "playerCollision");
+				bouncyBrick.addEventListener(this, "moveLeft");
+				bouncyBrick.addEventListener(this, "moveRight");
 
 
 				if (gameTimer == null) {
@@ -267,6 +276,7 @@ public class BetaLVL04 extends Game implements IEventListener {
 						gate.dispatchEvent(event);
 					}
 					
+					//Button hitboxes for sprite and save states
 					if (player.getHitBox().intersects(button.getHitBox())) {
 						Event event = new Event("ButtonPressed", button);
 						button.dispatchEvent(event);
@@ -289,9 +299,38 @@ public class BetaLVL04 extends Game implements IEventListener {
 				        	}
 				        }
 				    
+					//Bouncy brick hitboxes
+					 if (player.getHitBox().intersects(bouncyBrick.getHitBox())) {
+							Event event = new Event("playerCollision", bouncyBrick);
+							if(player.getyPos() <= bouncyBrick.getyPos()){player.setyPos(player.getyPos() - 150);}
+							player.setOnGround(true);
+							bouncyBrick.dispatchEvent(event);
+						}
+						
+					 if (saveState1.getHitBox().intersects(bouncyBrick.getHitBox())) {
+							Event event = new Event("playerCollision", bouncyBrick);
+							bouncyBrick.dispatchEvent(event);
+						}
+						
+					 if (saveState2.getHitBox().intersects(bouncyBrick.getHitBox())) {
+							Event event = new Event("playerCollision", bouncyBrick);
+							bouncyBrick.dispatchEvent(event);
+						}
+						
 					juggler.getInstance().nextFrame();
 
 				}
+				
+				if(bouncyBrick.getxPos() >= 250){
+					Event event = new Event("moveLeft", bouncyBrick);
+					bouncyBrick.dispatchEvent(event);
+				}
+				
+				if(bouncyBrick.getxPos() <= 100){
+					Event event = new Event("moveRight", bouncyBrick);
+					bouncyBrick.dispatchEvent(event);
+				}
+				System.out.println(bouncyBrick.getxPos());
 
 				// Making it so we can only hit S once every ten frames
 				if (sFrames > 0) {
@@ -321,7 +360,7 @@ public class BetaLVL04 extends Game implements IEventListener {
 					button.draw(g);
 					gate.draw(g);
 					player.draw(g);
-					//brick.draw(g);
+					bouncyBrick.draw(g);
 				}
 
 				// Draw savestates
@@ -352,10 +391,22 @@ public class BetaLVL04 extends Game implements IEventListener {
 					System.out.println("Quest is completed!");
 
 				}
+				
 
 				//Intersecting with door
 				if (event.getEventType() == "inGoalEvent") {
 					inGoal = true;
+				}
+				
+				//Brick Movement
+				if(event.getEventType() == "moveLeft"){
+					roveBrickL.animate(TweenableParams.xPos, bouncyBrick.getxPos(), 100, 1000);
+					juggler.add(roveBrickL);
+					
+				}
+				if(event.getEventType() == "moveRight"){
+					roveBrickR.animate(TweenableParams.xPos, bouncyBrick.getxPos(), 300, 1000);
+					juggler.add(roveBrickR);
 				}
 
 				// Button pressed event
