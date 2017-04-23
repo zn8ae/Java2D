@@ -39,6 +39,7 @@ public class BetaLVL02 extends Game implements IEventListener {
 		static Beta game;
 		int eFrames;
 
+
 		// Player sprite and save state variables
 		AnimatedSprite player = new AnimatedSprite("player");
 		Sprite saveState1 = new Sprite("saveState1", "saved1.png");
@@ -51,6 +52,9 @@ public class BetaLVL02 extends Game implements IEventListener {
 		// Button sprites and variables
 
 		// Platform sprites and variables
+	    Brick brick = new Brick("Brick","Brick.png");
+	    Brick angryBrick = new Brick("AngryBrick","AngryBrick.png");
+
 
 		// Hazards sprites and variables
 
@@ -93,7 +97,15 @@ public class BetaLVL02 extends Game implements IEventListener {
 			player.setyPos(640);
 			startingPositions.put(player, new Point((int) player.getxPos(), (int) player.getyPos()));
 
-			goal.setxPos(MAXWIDTH/2-goal.getWidth());
+			brick.setxPos(MAXWIDTH/2-300);
+			brick.setyPos(650);
+			
+			angryBrick.setxPos(MAXWIDTH/2-100);
+			angryBrick.setyPos(650);
+
+			
+			
+			goal.setxPos(MAXWIDTH-goal.getWidth()-200);
 			goal.setyPos(645);
 			
 			// Player tweens
@@ -106,7 +118,9 @@ public class BetaLVL02 extends Game implements IEventListener {
 			// Event registering
 			saveState1.addEventListener(this, "playerCollision");
 			saveState2.addEventListener(this, "playerCollision");
-			goal.addEventListener(this, "inDoor1Event");
+			brick.addEventListener(this, "playerCollision");
+			angryBrick.addEventListener(this, "hazardCollision");
+			goal.addEventListener(this, "inGoalEvent");
 
 
 			if (gameTimer == null) {
@@ -126,7 +140,7 @@ public class BetaLVL02 extends Game implements IEventListener {
 
 			//Door logic?
 			if (player.getHitBox().intersects(goal.getHitBox())) {			
-				Event event = new Event("inDoor1Event", goal);
+				Event event = new Event("inGoalEvent", goal);
 				goal.dispatchEvent(event);
 			}
 			
@@ -254,7 +268,14 @@ public class BetaLVL02 extends Game implements IEventListener {
 					Event event = new Event("playerCollision", saveState2);
 					saveState2.dispatchEvent(event);
 				}
-
+				if (player.getHitBox().intersects(brick.getHitBox())) {
+					Event event = new Event("playerCollision", brick);
+					brick.dispatchEvent(event);
+				}
+				if (player.getHitBox().intersects(angryBrick.getHitBox())) {
+					Event event = new Event("hazardCollision", angryBrick);
+					angryBrick.dispatchEvent(event);
+				}
 
 
 				juggler.getInstance().nextFrame();
@@ -286,6 +307,8 @@ public class BetaLVL02 extends Game implements IEventListener {
 
 			if (player != null) {
 				goal.draw(g);
+				brick.draw(g);
+				angryBrick.draw(g);
 				player.draw(g);
 
 
@@ -309,6 +332,35 @@ public class BetaLVL02 extends Game implements IEventListener {
 
 		}
 
+		
+		public void reset(){
+			save1 = false;
+			save2 = false;
+			
+			// We have a hashMap of <Sprite, Starting x and y>
+			Iterator entries = startingPositions.entrySet().iterator();
+			while (entries.hasNext()) {
+				// Grab our sprite and Point
+				Entry thisEntry = (Entry) entries.next();
+				Object sprite = thisEntry.getKey();
+				Object pos = thisEntry.getValue();
+
+				// Set our sprite back to it's starting position
+				((Sprite) sprite).setxPos(((Point) pos).getX());
+				((Sprite) sprite).setyPos(((Point) pos).getY());
+
+				// An if check to replay our tween if its the player
+				if (((Sprite) sprite).getId().equals("player")) {
+					TweenTransitions transit = new TweenTransitions();
+					Tween marioTween = new Tween(player, transit);
+
+					marioTween.animate(TweenableParams.alpha, 0, 1, 1000);
+					marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
+
+					juggler.add(marioTween);
+				}
+			}
+		}
 		// Where all our events are for right now
 
 		public void handleEvent(Event event) {
@@ -321,10 +373,8 @@ public class BetaLVL02 extends Game implements IEventListener {
 			}
 
 			//Intersecting with door
-			if (event.getEventType() == "inDoor1Event") {
-				System.out.println("inDoor1Event");
+			if (event.getEventType() == "inGoalEvent") {
 				inGoal = true;
-
 			}
 
 			// Button pressed event
@@ -334,7 +384,14 @@ public class BetaLVL02 extends Game implements IEventListener {
 				// that it looks better
 
 			}
+			
+			//Reset event
+			if (event.getEventType() == "hazardCollision") {
+				reset();
 
+			}
+
+			//Collision
 			if (event.getEventType() == "playerCollision") {
 				System.out.println("Collision with: ");
 				Sprite source = (Sprite) event.getSource();

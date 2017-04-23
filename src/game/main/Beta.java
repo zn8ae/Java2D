@@ -212,7 +212,7 @@ public class Beta extends Game implements IEventListener {
 			door5.dispatchEvent(event);
 		}
 		if (player.getHitBox().intersects(door6.getHitBox())) {			
-			Event event = new Event("inDoor4Event", door6);
+			Event event = new Event("inDoor6Event", door6);
 			door6.dispatchEvent(event);
 		}
 		
