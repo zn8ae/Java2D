@@ -86,9 +86,6 @@ public class BetaLVL01 extends Game implements IEventListener {
 			animations.put("run", num);
 			player.setAnimations(animations);
 
-			// Sound info
-			Sound bgm = new Sound("cooking.wav");
-			bgm.loop();
 
 			// Sprite positioning (SHOULD PROBABLY RE WORK THIS AT SOME POINT)
 			player.setxPos(20);

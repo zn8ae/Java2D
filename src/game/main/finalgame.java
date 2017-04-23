@@ -79,7 +79,6 @@ public class finalgame extends Game implements IEventListener
 
     public finalgame() {
         super("Prototype", 1200, 800);
-
         
         
         List<String> list = new ArrayList<String>();

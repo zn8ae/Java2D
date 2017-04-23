@@ -153,7 +153,7 @@ public class BetaLVL05 extends Game implements IEventListener {
 				if(inGoal && eFrames == 20){
 					game = new Beta();
 					game.start();
-					game.setLevelComplete(1);
+					game.setLevelComplete(5);
 					this.exitGame();
 				}
 

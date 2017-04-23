@@ -52,7 +52,7 @@ public class Beta extends Game implements IEventListener {
 	static BetaLVL03 level03;
 	static BetaLVL04 level04;
 	static BetaLVL05 level05;
-	static BetaLVL06 level06;
+	static finalgameBrickJump level06;
 
 
 
@@ -85,8 +85,6 @@ public class Beta extends Game implements IEventListener {
 	Sprite door6 = new Sprite("door6","door6.png");
 	boolean inDoor6 = false;
 	
-	
-	
 	// Holds the starting positions of all our moveable sprites, so that they
 	// can be reset when we "save/reload"
 	HashMap<Sprite, Point> startingPositions = new HashMap<Sprite, Point>();
@@ -96,6 +94,8 @@ public class Beta extends Game implements IEventListener {
 	GameClock gameTimer;
 	TweenJuggler juggler = new TweenJuggler();
 	
+	// BGM
+	Sound bgm;
 	
 	public void setLevelComplete(int inLevel){
 		switch(inLevel){
@@ -103,8 +103,29 @@ public class Beta extends Game implements IEventListener {
 			lvl01Complete = true;
 			break;
 		case 2:
+			lvl01Complete = true;
+			lvl02Complete = true;
+			break;
+		case 3:
+			lvl01Complete = true;
+			lvl02Complete = true;
+			lvl03Complete = true;
+			break;
+		case 4:
+			lvl01Complete = true;
+			lvl02Complete = true;
+			lvl03Complete = true;
+			lvl04Complete = true;
+			break;
+		case 5:
+			lvl01Complete = true;
+			lvl02Complete = true;
+			lvl03Complete = true;
+			lvl04Complete = true;
+			lvl05Complete = true;
 			break;
 		}
+		
 	}
 	
 
@@ -123,10 +144,14 @@ public class Beta extends Game implements IEventListener {
 		animations.put("run", num);
 		player.setAnimations(animations);
 
-		// Sound info
-		Sound bgm = new Sound("cooking.wav");
-		bgm.loop();
-
+		// 
+		if(bgm!=null) {
+			bgm.stop();
+		} else {
+			bgm = new Sound("cooking.wav");
+			bgm.loop();
+		}
+		
 		// Sprite positioning (SHOULD PROBABLY RE WORK THIS AT SOME POINT)
 		player.setxPos(20);
 		player.setyPos(640);
@@ -187,7 +212,6 @@ public class Beta extends Game implements IEventListener {
 		inDoor4 = false;
 		inDoor5 = false;
 		inDoor6 = false;
-
 
 
 		//Door logic
@@ -255,7 +279,6 @@ public class Beta extends Game implements IEventListener {
 			
 			
 			
-			
 			//Check if we are intersecting with door1
 			if(inDoor1 && eFrames == 20){
 				level01 = new BetaLVL01();
@@ -292,7 +315,7 @@ public class Beta extends Game implements IEventListener {
 			
 			//Check if we are intersecting with door6
 			if(inDoor6 && eFrames == 20){
-				level06 = new BetaLVL06();
+				level06 = new finalgameBrickJump();
 				level06.start();			
 				this.exitGame();
 			}
@@ -436,13 +459,23 @@ public class Beta extends Game implements IEventListener {
 		if(lvl01Complete && door2 != null){
 			door2.draw(g);
 		}
+		
+		if(lvl02Complete && door3 != null){
+			door3.draw(g);
+		}
+		if(lvl03Complete && door4 != null){
+			door4.draw(g);
+		}
+		if(lvl04Complete && door5 != null){
+			door5.draw(g);
+		}
+		if(lvl05Complete && door6 != null){
+			door6.draw(g);
+		}
+
 
 		if (player != null) {
 			door1.draw(g);
-			door3.draw(g);
-			door4.draw(g);
-			door5.draw(g);
-			door6.draw(g);
 			player.draw(g);
 
 

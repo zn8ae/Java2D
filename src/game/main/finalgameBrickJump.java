@@ -2,7 +2,6 @@ package game.main;
 
 import edu.virginia.engine.display.AnimatedSprite;
 import edu.virginia.engine.display.Brick;
-import edu.virginia.engine.display.Coin;
 import edu.virginia.engine.display.DisplayObject;
 import edu.virginia.engine.display.Game;
 import edu.virginia.engine.display.Sprite;
@@ -30,7 +29,7 @@ import java.util.Map.Entry;
 
 public class finalgameBrickJump extends Game implements IEventListener
 {
-    AnimatedSprite Mario = new AnimatedSprite("Mario");
+    AnimatedSprite Mario = new AnimatedSprite("player");
     Sprite saveStateMario1 = new Sprite("saveStateMario1","saved1.png");
     boolean save1 = false;
     Sprite saveStateMario2 = new Sprite("saveStateMario2","saved2.png");
@@ -58,17 +57,18 @@ public class finalgameBrickJump extends Game implements IEventListener
 
     
     // For showing we can "reset" our game state
-    Sprite ball = new Sprite("ball","ball.png");
+    Sprite angryBrick = new Sprite("angryBrick","AngryBrick.png");
     
     //The goal
-    Coin coin = new Coin("Coin","Coin.png");
+    Sprite goal = new Sprite("goal","goal.png");
+    Sprite complete = new Sprite("complete", "complete.png");
     
 
     // Holds the starting positions of all our moveable sprites, so that they can be 
     // reset when we "save/reload"
     HashMap<Sprite, Point> startingPositions = new HashMap<Sprite, Point>();
-    
-    Tween coinTween = new Tween(coin);
+    Tween angryTween;
+    Tween compTween;
     QuestManager manager = new QuestManager();
     private boolean condition=false;
     GameClock gameTimer;
@@ -78,9 +78,8 @@ public class finalgameBrickJump extends Game implements IEventListener
 
 
     public finalgameBrickJump() {
-        super("Alpha", 1200, 800);
+        super("BetaLVL06", 1200, 800);
 
-        
         
         List<String> list = new ArrayList<String>();
         list.add("hero.png");
@@ -95,9 +94,14 @@ public class finalgameBrickJump extends Game implements IEventListener
         Sound bgm = new Sound("cooking.wav");
         bgm.loop();
 
+        complete.setxPos(350);
+        complete.setyPos(180);
+        complete.setAlpha(0);
+        complete.setxPivot(200);
+        complete.setyPivot(280);
         
-        coin.setxPos(50);
-        coin.setyPos(50);
+        goal.setxPos(50);
+        goal.setyPos(30);
         
 
         brick.setxPos(775);
@@ -141,25 +145,33 @@ public class finalgameBrickJump extends Game implements IEventListener
         button3.setxPos(900);
         button3.setyPos(100);
         
-        ball.setxPos(300);
-        ball.setyPos(10);
-        startingPositions.put(ball,new Point((int)ball.getxPos(), (int)ball.getyPos()));
+        angryBrick.setxPos(300);
+        angryBrick.setyPos(200);
+        startingPositions.put(angryBrick,new Point((int)angryBrick.getxPos(), (int)angryBrick.getyPos()));
 
         
         TweenTransitions transit = new TweenTransitions();
         Tween marioTween = new Tween(Mario, transit);
-
+        Tween angryTween = new Tween(angryBrick, transit);
+        angryTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
+		compTween = new Tween(complete,transit);
+		
+		
         marioTween.animate(TweenableParams.alpha, 0, 1, 1000);
         marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
+        angryTween.animate(TweenableParams.yPos, 225, 680, 2000);
+        
 
         juggler.add(marioTween);
+        juggler.add(angryTween);
 
-        coin.addEventListener(this,  "CoinPickedUp");
+        goal.addEventListener(this, "inGoalEvent");
         
         brick.addEventListener(this,  "collide");
         brick2.addEventListener(this, "collide3");
         brick3.addEventListener(this, "collideWithTopBrick");
-        brick4.addEventListener(this, "collideWithCoinBrick");
+        brick4.addEventListener(this, "collideWithgoalBrick");
+        angryBrick.addEventListener(this, "hazardCollision");
         button.addEventListener(this, "ButtonPressed");
         button2.addEventListener(this, "ButtonPressed2");
         button3.addEventListener(this, "ButtonPressed3");
@@ -168,6 +180,8 @@ public class finalgameBrickJump extends Game implements IEventListener
         gate.addEventListener(this,  "collide2");
         platform.addEventListener(this,  "collide4");
         platform2.addEventListener(this,  "collideWithTopPlatform");
+       
+        
 
 
         if (gameTimer == null) {
@@ -190,8 +204,11 @@ public class finalgameBrickJump extends Game implements IEventListener
     	
     	buttonPressed3=false;
 
+    	TweenTransitions transit = new TweenTransitions();
+    	
+    	
     	// Our "save" function key
-		if(pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_S)) && sFrames == 0){
+		if(pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_SPACE)) && sFrames == 0){
 			
 			//Figure out where to save our old mario ghost
 			if(save1 == false){
@@ -232,13 +249,16 @@ public class finalgameBrickJump extends Game implements IEventListener
 				
 				//An if check to replay our tween if its mario
 				if(((Sprite) sprite).getId().equals("Mario")){
-					TweenTransitions transit = new TweenTransitions();
+					
 			        Tween marioTween = new Tween(Mario, transit);
+			        Tween angryTween = new Tween(angryBrick, transit);
 
 			        marioTween.animate(TweenableParams.alpha, 0, 1, 1000);
 			        marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
+			        angryTween.animate(TweenableParams.yPos, 225, 680, 2000);
 
 			        juggler.add(marioTween);
+			        juggler.add(angryTween);
 				}		  
 			}
 			
@@ -263,14 +283,12 @@ public class finalgameBrickJump extends Game implements IEventListener
             //update y position accordingly
             Mario.setyPos(Mario.getyPos()+Mario.getV());
             
-            // Show falling ball
-            ball.setyPos(ball.getyPos()+ball.getV());
-            ball.setV((ball.getG()+ball.getV())/1.1);
 
 
             // I do not know what setV is or what this code is doing - Nate
             //determine if on ground
-            if(Mario.getyPos()>=650) {
+            //boundary check
+            if(Mario.getyPos()>=662) {
                 Mario.setOnGround(true);
             }
             //if on ground, no need to udpate v
@@ -283,13 +301,12 @@ public class finalgameBrickJump extends Game implements IEventListener
                 System.out.println("falling");
             }
             
-            
 
             //boundary checking
             if(Mario.getxPos()<0) Mario.setxPos(0);
             if(Mario.getxPos()>1150) Mario.setxPos(1150);
             //if(Mario.getyPos()<0) Mario.setyPos(0);
-            if(Mario.getyPos()>800) Mario.setyPos(800);
+            if(Mario.getyPos()>=662) Mario.setyPos(662);
 
 
             Mario.update(pressedKeys);
@@ -298,12 +315,19 @@ public class finalgameBrickJump extends Game implements IEventListener
         		Mario.setOnGround(false);
         	}
 
-		//Auto Hitbox for coin
-		if(Mario.getHitBox().intersects(coin.getHitBox())) {
-		       System.out.println("Hit!!");
-		       PickedUpEvent event = new PickedUpEvent();
-		       coin.dispatchEvent(event);
-		 }
+		//Auto Hitbox for goal
+        if (Mario.getHitBox().intersects(angryBrick.getHitBox())) {
+			Event event = new Event("hazardCollision", angryBrick);
+			angryBrick.dispatchEvent(event);
+		}
+            
+        if (Mario.getHitBox().intersects(goal.getHitBox()) && 
+        		pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_E)) &&
+        		sFrames==0) {			
+        	sFrames = 20;
+        	Event event = new Event("inGoalEvent", goal);
+			goal.dispatchEvent(event);
+		}
 		
 		if(Mario.getHitBox().intersects(saveStateMario1.getHitBox())) {
 			Event event = new Event("hitShadow1");
@@ -391,9 +415,9 @@ public class finalgameBrickJump extends Game implements IEventListener
 			Event event = new Event("collideWithTopBrick");
 			brick3.dispatchEvent(event);
 		 }    
-		  //Collision with near coin brick
+		  //Collision with near goal brick
 		if(Mario.getHitBox().intersects(brick4.getHitBox())) {
-			Event event = new Event("collideWithCoinBrick");
+			Event event = new Event("collideWithgoalBrick");
 			brick4.dispatchEvent(event);
 		 }   
 
@@ -440,7 +464,7 @@ public class finalgameBrickJump extends Game implements IEventListener
 
         if(Mario != null && button != null) {
         	button.draw(g);
-        	ball.draw(g);
+        	angryBrick.draw(g);
         	brick.draw(g);
         	brick2.draw(g);
         	brick3.draw(g);
@@ -449,14 +473,12 @@ public class finalgameBrickJump extends Game implements IEventListener
         	button3.draw(g);
         	//Used for drawing our hitboxes
         	//g.fillRect((int)button.getHitBox().getX(),(int) button.getHitBox().getY(),(int)button.getHitBox().getWidth(),(int)button.getHitBox().getHeight());
-            coin.draw(g);
+            goal.draw(g);
             Mario.draw(g);
             gate.draw(g);
             platform.draw(g);
             platform2.draw(g);
-
-
-
+            complete.draw(g);
 
         }
 
@@ -481,18 +503,21 @@ public class finalgameBrickJump extends Game implements IEventListener
 
     public void handleEvent(Event event)
     {
-        if(event.getEventType()=="CoinPickedUp") {
-            Mario.setAlpha(0);
-            System.out.println("Quest is completed!");
 
-            coinTween.animate(TweenableParams.xPos, 950, 420, 1500);
-            coinTween.animate(TweenableParams.yPos, 100, 230, 1500);
-            coinTween.animate(TweenableParams.scaleX, 1, 3, 1500);
-            coinTween.animate(TweenableParams.scaleY, 1, 3, 1500);
-            coinTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
+    	if (event.getEventType() == "hazardCollision") {
+			reset();
+		}
+    	
+    	//Intersecting with door
+		if (event.getEventType() == "inGoalEvent") {
+		  
+		  compTween.animate(TweenableParams.scaleX, 3, 1, 1500);
+          compTween.animate(TweenableParams.scaleY, 3, 1, 1500);
+          compTween.animate(TweenableParams.alpha, 0, 1, 1500);
+          compTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
 
-            juggler.add(coinTween);
-        }
+          juggler.add(compTween);
+		}
         
         // This event is called when the button is pressed
         if(event.getEventType()=="ButtonPressed") {
@@ -534,12 +559,16 @@ public class finalgameBrickJump extends Game implements IEventListener
 
         // Tween event
         if(event.getEventType()==TweenEvent.TWEEN_COMPLETE_EVENT) {
-           coinTween.removeEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
-           TweenTransitions transit = new TweenTransitions();
-           Tween fadeTween = new Tween(coin,transit);
-           fadeTween.animate(TweenableParams.alpha,1,0,2000);
-           fadeTween.animate(TweenableParams.rotation,1,30,2000);
-           juggler.add(fadeTween);
+           if(compTween.isComplete()) {
+	           compTween.removeEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
+	           System.out.println("Quest Completed");
+	           this.pause();
+           }
+           if(angryTween.isComplete()) {
+        	  
+        	   System.out.println("angry is real");
+           }
+           
         }
         
         
@@ -563,14 +592,14 @@ public class finalgameBrickJump extends Game implements IEventListener
 
                 }
 
-                //intersect from left, hitbox start from left of coin
+                //intersect from left, hitbox start from left of goal
                 else {
 
                     if(inter.getX()==button.getxPos()) {
                         Mario.setxPos(button.getxPos()-Mario.getWidth());
                     }
 
-                    //intersect from right, hitbox start from right of coin
+                    //intersect from right, hitbox start from right of goal
                     if(inter.getX()+inter.getWidth()==button.getxPos()+button.getWidth()) {
                         Mario.setxPos(button.getxPos()+button.getWidth());
                     }
@@ -603,14 +632,14 @@ public class finalgameBrickJump extends Game implements IEventListener
                         Mario.setyPos(brick.getyPos()+brick.getHeight());
                     }
                 }
-                //intersect from left, hitbox start from left of coin
+                //intersect from left, hitbox start from left of goal
                 else {
 
                     if(inter.getX()==brick.getxPos()) {
                         Mario.setxPos(brick.getxPos()-Mario.getWidth());
                     }
 
-                    //intersect from right, hitbox start from right of coin
+                    //intersect from right, hitbox start from right of goal
                     if(inter.getX()+inter.getWidth()==brick.getxPos()+brick.getWidth()) {
                         Mario.setxPos(brick.getxPos()+brick.getWidth());
                     }
@@ -639,14 +668,14 @@ public class finalgameBrickJump extends Game implements IEventListener
                         Mario.setyPos(platform.getyPos()+platform.getHeight());
                     }
                 }
-                //intersect from left, hitbox start from left of coin
+                //intersect from left, hitbox start from left of goal
                 else {
 
                     if(inter.getX()==platform.getxPos()) {
                         Mario.setxPos(platform.getxPos()-Mario.getWidth());
                     }
 
-                    //intersect from right, hitbox start from right of coin
+                    //intersect from right, hitbox start from right of goal
                     if(inter.getX()+inter.getWidth()==platform.getxPos()+platform.getWidth()) {
                         Mario.setxPos(platform.getxPos()+platform.getWidth());
                     }
@@ -676,14 +705,14 @@ public class finalgameBrickJump extends Game implements IEventListener
                         Mario.setyPos(platform2.getyPos()+platform2.getHeight());
                     }
                 }
-                //intersect from left, hitbox start from left of coin
+                //intersect from left, hitbox start from left of goal
                 else {
 
                     if(inter.getX()==platform2.getxPos()) {
                         Mario.setxPos(platform2.getxPos()-Mario.getWidth());
                     }
 
-                    //intersect from right, hitbox start from right of coin
+                    //intersect from right, hitbox start from right of goal
                     if(inter.getX()+inter.getWidth()==platform2.getxPos()+platform2.getWidth()) {
                         Mario.setxPos(platform2.getxPos()+platform2.getWidth());
                     }
@@ -713,14 +742,15 @@ public class finalgameBrickJump extends Game implements IEventListener
                         Mario.setyPos(brick3.getyPos()+brick3.getHeight());
                     }
                 }
-                //intersect from left, hitbox start from left of coin
+                //intersect from left, hitbox start froms
+//                left of goal
                 else {
 
                     if(inter.getX()==brick3.getxPos()) {
                         Mario.setxPos(brick3.getxPos()-Mario.getWidth());
                     }
 
-                    //intersect from right, hitbox start from right of coin
+                    //intersect from right, hitbox start from right of goal
                     if(inter.getX()+inter.getWidth()==brick3.getxPos()+brick3.getWidth()) {
                         Mario.setxPos(brick3.getxPos()+brick3.getWidth());
                     }
@@ -731,7 +761,7 @@ public class finalgameBrickJump extends Game implements IEventListener
         
         
         
-        if(event.getEventType()=="collideWithCoinBrick") {
+        if(event.getEventType()=="collideWithgoalBrick") {
             System.out.println("Collision!");
            
             Rectangle inter = Mario.getHitBox().intersection(brick4.getHitBox());
@@ -751,14 +781,14 @@ public class finalgameBrickJump extends Game implements IEventListener
                         Mario.setyPos(brick4.getyPos()+brick4.getHeight());
                     }
                 }
-                //intersect from left, hitbox start from left of coin
+                //intersect from left, hitbox start from left of goal
                 else {
 
                     if(inter.getX()==brick4.getxPos()) {
                         Mario.setxPos(brick4.getxPos()-Mario.getWidth());
                     }
 
-                    //intersect from right, hitbox start from right of coin
+                    //intersect from right, hitbox start from right of goal
                     if(inter.getX()+inter.getWidth()==brick4.getxPos()+brick4.getWidth()) {
                         Mario.setxPos(brick4.getxPos()+brick4.getWidth());
                     }
@@ -789,14 +819,14 @@ public class finalgameBrickJump extends Game implements IEventListener
                         Mario.setyPos(saveStateMario1.getyPos()+saveStateMario1.getHeight());
                     }
                 }
-                //intersect from left, hitbox start from left of coin
+                //intersect from left, hitbox start from left of goal
                 else {
 
                     if(inter3.getX()==saveStateMario1.getxPos()) {
                         Mario.setxPos(saveStateMario1.getxPos()-saveStateMario1.getWidth());
                     }
 
-                    //intersect from right, hitbox start from right of coin
+                    //intersect from right, hitbox start from right of goal
                     if(inter3.getX()+inter3.getWidth()==saveStateMario1.getxPos()+saveStateMario1.getWidth()) {
                         Mario.setxPos(saveStateMario1.getxPos()+saveStateMario1.getWidth());
                     }
@@ -824,14 +854,14 @@ public class finalgameBrickJump extends Game implements IEventListener
                         Mario.setyPos(saveStateMario2.getyPos()+saveStateMario2.getHeight());
                     }
                 }
-                //intersect from left, hitbox start from left of coin
+                //intersect from left, hitbox start from left of goal
                 else {
 
                     if(inter4.getX()==saveStateMario2.getxPos()) {
                         Mario.setxPos(saveStateMario2.getxPos()-saveStateMario2.getWidth());
                     }
 
-                    //intersect from right, hitbox start from right of coin
+                    //intersect from right, hitbox start from right of goal
                     if(inter4.getX()+inter4.getWidth()==saveStateMario2.getxPos()+saveStateMario2.getWidth()) {
                         Mario.setxPos(saveStateMario2.getxPos()+saveStateMario2.getWidth());
                     }
@@ -859,14 +889,14 @@ public class finalgameBrickJump extends Game implements IEventListener
                         Mario.setyPos(gate.getyPos()+gate.getHeight());
                     }
                 }
-                //intersect from left, hitbox start from left of coin
+                //intersect from left, hitbox start from left of goal
                 else {
 
                     if(inter.getX()==gate.getxPos()) {
                         Mario.setxPos(gate.getxPos()-Mario.getWidth());
                     }
 
-                    //intersect from right, hitbox start from right of coin
+                    //intersect from right, hitbox start from right of goal
                     if(inter.getX()+inter.getWidth()==gate.getxPos()+gate.getWidth()) {
                         Mario.setxPos(gate.getxPos()+gate.getWidth());
                     }
@@ -895,14 +925,14 @@ public class finalgameBrickJump extends Game implements IEventListener
                         Mario.setyPos(brick2.getyPos()+brick2.getHeight());
                     }
                 }
-                //intersect from left, hitbox start from left of coin
+                //intersect from left, hitbox start from left of goal
                 else {
 
                     if(inter.getX()==brick2.getxPos()) {
                         Mario.setxPos(brick2.getxPos()-Mario.getWidth());
                     }
 
-                    //intersect from right, hitbox start from right of coin
+                    //intersect from right, hitbox start from right of goal
                     if(inter.getX()+inter.getWidth()==brick2.getxPos()+brick2.getWidth()) {
                         Mario.setxPos(brick2.getxPos()+brick2.getWidth());
                     }
@@ -911,4 +941,46 @@ public class finalgameBrickJump extends Game implements IEventListener
             }
         }
     }
+
+	private void reset() {
+		save1 = false;
+		save2 = false;
+		saveTracker=1;
+		
+		
+			saveStateMario1.setxPos(99999);
+			saveStateMario1.setyPos(99999);
+		
+			saveStateMario2.setxPos(999999);
+			saveStateMario2.setyPos(999999);
+			
+			
+		// We have a hashMap of <Sprite, Starting x and y>
+		Iterator entries = startingPositions.entrySet().iterator();
+		while (entries.hasNext()) {
+			// Grab our sprite and Point
+			Entry thisEntry = (Entry) entries.next();
+			Object sprite = thisEntry.getKey();
+			Object pos = thisEntry.getValue();
+
+			//Set our sprite back to it's starting position
+			((Sprite) sprite).setxPos(((Point) pos).getX());
+			((Sprite) sprite).setyPos(((Point) pos).getY());
+			
+			//An if check to replay our tween if its mario
+			if(((Sprite) sprite).getId().equals("Mario")){
+				TweenTransitions transit = new TweenTransitions();
+		        Tween marioTween = new Tween(Mario, transit);
+		        Tween angryTween = new Tween(angryBrick, transit);
+
+		        marioTween.animate(TweenableParams.alpha, 0, 1, 1000);
+		        marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
+		        angryTween.animate(TweenableParams.yPos, 225, 600, 2000);
+
+		        juggler.add(marioTween);
+		        juggler.add(angryTween);
+			}
+		}
+
+	}
 }

@@ -12,6 +12,8 @@ import edu.virginia.engine.tween.*;
 import edu.virginia.engine.util.GameClock;
 import edu.virginia.engine.util.Sound;
 
+
+
 //Imports from  java packages
 import java.awt.Color;
 import java.awt.Graphics;
@@ -50,9 +52,10 @@ public class BetaLVL03 extends Game implements IEventListener {
 		int sFrames = 0;
 
 		// Button sprites and variables
-
+		Sprite button = new Sprite("button", "button.png");
+		boolean ButtonPressed = false;
 		// Platform sprites and variables
-	    Brick brick = new Brick("Brick","Brick.png");
+	    Sprite gate = new Sprite("gate", "gate.png");
 
 		// Hazards sprites and variables
 
@@ -95,10 +98,11 @@ public class BetaLVL03 extends Game implements IEventListener {
 			player.setyPos(640);
 			startingPositions.put(player, new Point((int) player.getxPos(), (int) player.getyPos()));
 
-			brick.setxPos(MAXWIDTH/2-100);
-			brick.setyPos(650);
-
+			gate.setxPos(650);
+			gate.setyPos(470);
 			
+			button.setxPos(400);
+			button.setyPos(740);
 			
 			goal.setxPos(MAXWIDTH-goal.getWidth()-200);
 			goal.setyPos(645);
@@ -113,7 +117,8 @@ public class BetaLVL03 extends Game implements IEventListener {
 			// Event registering
 			saveState1.addEventListener(this, "playerCollision");
 			saveState2.addEventListener(this, "playerCollision");
-			brick.addEventListener(this, "playerCollision");
+			gate.addEventListener(this, "playerCollision");
+			button.addEventListener(this, "buttonPressed");
 			goal.addEventListener(this, "inGoalEvent");
 
 
@@ -131,6 +136,9 @@ public class BetaLVL03 extends Game implements IEventListener {
 		public void update(ArrayList<String> pressedKeys) {
 			//Reset our flags at start of frame
 			inGoal = false;
+			ButtonPressed = false;
+			button.setDisplayImage("button.png");
+			button.setyPos(740);
 
 			//Door logic?
 			if (player.getHitBox().intersects(goal.getHitBox())) {			
@@ -138,27 +146,19 @@ public class BetaLVL03 extends Game implements IEventListener {
 				goal.dispatchEvent(event);
 			}
 			
-			
-			
 			///Key logic
 			if (pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_E)) && eFrames == 0) {
 				// A ghetto way of making sure this s key if statement is called at
 				// max every 10 frames
 				eFrames = 20;
-				
-				
-				
-				
+						
 				//Check if we are intersecting with door1
 				if(inGoal && eFrames == 20){
 					game = new Beta();
 					game.start();
-					game.setLevelComplete(1);
+					game.setLevelComplete(3);
 					this.exitGame();
 				}
-
-
-				
 
 			}
 
@@ -262,12 +262,34 @@ public class BetaLVL03 extends Game implements IEventListener {
 					Event event = new Event("playerCollision", saveState2);
 					saveState2.dispatchEvent(event);
 				}
-				if (player.getHitBox().intersects(brick.getHitBox())) {
-					Event event = new Event("playerCollision", brick);
-					brick.dispatchEvent(event);
+
+				if (player.getHitBox().intersects(gate.getHitBox())) {
+					Event event = new Event("playerCollision", gate);
+					gate.dispatchEvent(event);
+				}
+				
+				if (player.getHitBox().intersects(button.getHitBox())) {
+					Event event = new Event("ButtonPressed", button);
+					button.dispatchEvent(event);
+				}
+				
+				if (saveState1.getHitBox().intersects(button.getHitBox())) {
+					Event event = new Event("ButtonPressed", button);
+					button.dispatchEvent(event);
+				}
+				
+				if (saveState2.getHitBox().intersects(button.getHitBox())) {
+					Event event = new Event("ButtonPressed", button);
+					button.dispatchEvent(event);
 				}
 
-
+				 if(ButtonPressed == false){
+			        	if(gate.getyPos() < 465){
+			            	gate.setyPos(gate.getyPos()+gate.getV());
+			            	gate.setV((gate.getG()+gate.getV())/1);
+			        	}
+			        }
+			    
 				juggler.getInstance().nextFrame();
 
 			}
@@ -297,10 +319,10 @@ public class BetaLVL03 extends Game implements IEventListener {
 
 			if (player != null) {
 				goal.draw(g);
-				brick.draw(g);
+				button.draw(g);
+				gate.draw(g);
 				player.draw(g);
-
-
+				//brick.draw(g);
 			}
 
 			// Draw savestates
@@ -340,8 +362,16 @@ public class BetaLVL03 extends Game implements IEventListener {
 			// Button pressed event
 			if (event.getEventType() == "ButtonPressed") {
 				System.out.println("Button is being pressed");
-				// Set position of the pressed button sprite a little bit lower so
-				// that it looks better
+		        button.setDisplayImage("button_pressed.png");
+		            //Set position of the pressed button sprite a little bit lower so that it looks better
+		        button.setyPos(760);
+		            
+		            // Logic for getting gate to raise
+		        ButtonPressed = true;
+		           if(gate.getyPos()>220){
+		            gate.setyPos((gate.getyPos()-5));
+		           }
+		           gate.setV(0);
 
 			}
 
@@ -354,7 +384,7 @@ public class BetaLVL03 extends Game implements IEventListener {
 				Rectangle inter4 = player.getHitBox().intersection(saveState2.getHitBox());
 				if (!inter.isEmpty()) {
 
-					// intesect from above, then bottom does not touch ground
+					// intersect from above, then bottom does not touch ground
 					// moreover, edge case
 					if (inter.getY() + inter.getHeight() >= source.getyPos() && inter.getWidth() >= inter.getHeight() + 5) {
 						if (inter.getY() + inter.getHeight() <= source.getyPos() + (source.getHeight() / 2)) {
