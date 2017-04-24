@@ -87,7 +87,7 @@ public class BetaLVL05 extends Game implements IEventListener {
 		private boolean buttonPressed2;
 
 		public BetaLVL05() {
-			super("BetaLVL05", MAXWIDTH, MAXHEIGHT);
+			super("BetaLVL0005", MAXWIDTH, MAXHEIGHT);
 			
 			// Animated sprite, not doing anything now
 			List<String> animatedSpriteList = new ArrayList<String>();
