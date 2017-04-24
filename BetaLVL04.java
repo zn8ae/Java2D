@@ -13,6 +13,7 @@ import edu.virginia.engine.util.GameClock;
 import edu.virginia.engine.util.Sound;
 
 
+
 //Imports from  java packages
 import java.awt.Color;
 import java.awt.Graphics;
@@ -58,8 +59,11 @@ public class BetaLVL04 extends Game implements IEventListener {
 
 			// Hazards sprites and variables
 		    Brick bouncyBrick = new Brick("bouncyBrick", "BouncyBrick.png");
-		    Tween roveBrickL = new Tween(bouncyBrick);
-		    Tween roveBrickR = new Tween(bouncyBrick);
+		/*    Tween roveBrickL = new Tween(bouncyBrick);
+		    Tween roveBrickR = new Tween(bouncyBrick); */
+		    Sprite moveLbutton = new Sprite("moveLbutton", "button.png");
+		    Sprite moveRbutton = new Sprite("moveRbutton", "button.png");
+		    int move = 0;
 
 			// Objective sprites and variables
 			Sprite goal = new Sprite("goal","goal.png");
@@ -77,7 +81,7 @@ public class BetaLVL04 extends Game implements IEventListener {
 			TweenJuggler juggler = new TweenJuggler();
 
 			public BetaLVL04() {
-				super("BetaLVL04", MAXWIDTH, MAXHEIGHT);
+				super("BetaLVL04", MAXWIDTH, MAXHEIGHT); 
 				
 				// Animated sprite, not doing anything now
 				List<String> animatedSpriteList = new ArrayList<String>();
@@ -109,6 +113,11 @@ public class BetaLVL04 extends Game implements IEventListener {
 				bouncyBrick.setxPos(100);
 				bouncyBrick.setyPos(500);
 				
+				moveLbutton.setxPos(300);
+				moveLbutton.setyPos(500);
+				moveRbutton.setxPos(100);
+				moveRbutton.setyPos(500);
+				
 				goal.setxPos(MAXWIDTH-goal.getWidth()-200);
 				goal.setyPos(250);
 				
@@ -127,7 +136,7 @@ public class BetaLVL04 extends Game implements IEventListener {
 				goal.addEventListener(this, "inGoalEvent");
 				bouncyBrick.addEventListener(this, "playerCollision");
 				bouncyBrick.addEventListener(this, "moveLeft");
-				bouncyBrick.addEventListener(this, "moveRight");
+				bouncyBrick.addEventListener(this, "moveRight"); 
 
 
 				if (gameTimer == null) {
@@ -321,7 +330,22 @@ public class BetaLVL04 extends Game implements IEventListener {
 
 				}
 				
-				if(bouncyBrick.getxPos() >= 250){
+				if(move == 1000){
+				if(bouncyBrick.getHitBox().intersects(moveLbutton.getHitBox())){
+					Event event = new Event("moveLeft", bouncyBrick);
+					bouncyBrick.dispatchEvent(event);
+				}
+				
+				if(bouncyBrick.getHitBox().intersects(moveRbutton.getHitBox())){
+					Event event = new Event("moveRight", bouncyBrick);
+					bouncyBrick.dispatchEvent(event);
+				}
+				move = 0;
+				}
+				move++;
+				System.out.println("Move: " + move);
+				
+			/*	if(bouncyBrick.getxPos() >= 250){
 					Event event = new Event("moveLeft", bouncyBrick);
 					bouncyBrick.dispatchEvent(event);
 				}
@@ -330,7 +354,7 @@ public class BetaLVL04 extends Game implements IEventListener {
 					Event event = new Event("moveRight", bouncyBrick);
 					bouncyBrick.dispatchEvent(event);
 				}
-				System.out.println(bouncyBrick.getxPos());
+				System.out.println(bouncyBrick.getxPos()); */
 
 				// Making it so we can only hit S once every ten frames
 				if (sFrames > 0) {
@@ -361,6 +385,8 @@ public class BetaLVL04 extends Game implements IEventListener {
 					gate.draw(g);
 					player.draw(g);
 					bouncyBrick.draw(g);
+					moveLbutton.draw(g);
+					moveRbutton.draw(g);
 				}
 
 				// Draw savestates
@@ -398,16 +424,30 @@ public class BetaLVL04 extends Game implements IEventListener {
 					inGoal = true;
 				}
 				
-				//Brick Movement
+		/*		//Brick Movement
 				if(event.getEventType() == "moveLeft"){
-					roveBrickL.animate(TweenableParams.xPos, bouncyBrick.getxPos(), 100, 1000);
+					System.out.println("MoveLeft");
+					roveBrickL.animate(TweenableParams.xPos, 301, 99, 1000);
 					juggler.add(roveBrickL);
 					
 				}
 				if(event.getEventType() == "moveRight"){
-					roveBrickR.animate(TweenableParams.xPos, bouncyBrick.getxPos(), 300, 1000);
+					System.out.println("MoveRight");
+					roveBrickR.animate(TweenableParams.xPos, 99, 301, 1000);
 					juggler.add(roveBrickR);
+				} */
+				
+				if(event.getEventType() == "moveLeft"){
+					System.out.println("MoveLeft");
+					bouncyBrick.setxPos(100);
+					System.out.println(bouncyBrick.getxPos());
+					
 				}
+				if(event.getEventType() == "moveRight"){
+					System.out.println("MoveRight");
+					bouncyBrick.setxPos(300);
+					System.out.println(bouncyBrick.getxPos());
+				} 
 
 				// Button pressed event
 				if (event.getEventType() == "ButtonPressed") {
