@@ -53,14 +53,27 @@ public class BetaLVL05 extends Game implements IEventListener {
 
 		// Platform sprites and variables
 	    Brick brick = new Brick("Brick","Brick.png");
+	    Brick brick2 = new Brick("Brick2","Brick.png");
+	    Brick brick3 = new Brick("Brick3","Brick.png");
+	    Brick brick4 = new Brick("Brick4","Brick.png");
+	    Brick brick5 = new Brick("Brick5","Brick.png");
+	    Brick brick6 = new Brick("Brick6","Brick.png");
+	    Brick brick7 = new Brick("Brick7","Brick.png");
+	    Brick brick8 = new Brick("Brick8","Brick.png");
+	    Brick brick9 = new Brick("Brick9","Brick.png");
+	    Brick brick10 = new Brick("Brick10","Brick.png");
+	    Brick brick11 = new Brick("Brick11","Brick.png");
+	    
+	    Brick button = new Brick("button","button.png");
+	    Brick button2 = new Brick("button2","button.png");
+	    
 
 		// Hazards sprites and variables
 
 		// Objective sprites and variables
 		Sprite goal = new Sprite("goal","goal.png");
 		boolean inGoal = false;
-		
-		
+	
 		
 		// Holds the starting positions of all our moveable sprites, so that they
 		// can be reset when we "save/reload"
@@ -70,6 +83,8 @@ public class BetaLVL05 extends Game implements IEventListener {
 		QuestManager manager = new QuestManager();
 		GameClock gameTimer;
 		TweenJuggler juggler = new TweenJuggler();
+		private boolean buttonPressed;
+		private boolean buttonPressed2;
 
 		public BetaLVL05() {
 			super("BetaLVL05", MAXWIDTH, MAXHEIGHT);
@@ -95,27 +110,73 @@ public class BetaLVL05 extends Game implements IEventListener {
 			player.setyPos(640);
 			startingPositions.put(player, new Point((int) player.getxPos(), (int) player.getyPos()));
 
-			brick.setxPos(MAXWIDTH/2-100);
+			brick.setxPos(100);
 			brick.setyPos(650);
 
+			brick2.setxPos(180);
+			brick2.setyPos(550);
 			
+			brick3.setxPos(260);
+			brick3.setyPos(450);
 			
-			goal.setxPos(MAXWIDTH-goal.getWidth()-200);
+			brick4.setxPos(340);
+			brick4.setyPos(350);
+			
+			brick5.setxPos(420);
+			brick5.setyPos(250);
+			
+			brick6.setxPos(500);
+			brick6.setyPos(350);
+			
+			brick7.setxPos(580);
+			brick7.setyPos(450);
+			
+			brick8.setxPos(660);
+			brick8.setyPos(550);
+			
+			brick9.setxPos(720);
+			brick9.setyPos(650);
+			
+			brick10.setxPos(825);
+			brick10.setyPos(150);
+			
+			brick11.setxPos(500);
+			brick11.setyPos(600);
+			
+			button.setxPos(850);
+			button.setyPos(180);
+			
+			button2.setxPos(850);
+			button2.setyPos(120);
+			 
+			
+			goal.setxPos(250);
 			goal.setyPos(645);
 			
 			// Player tweens
 			TweenTransitions transit = new TweenTransitions();
 			Tween marioTween = new Tween(player, transit);
-			marioTween.animate(TweenableParams.alpha, 0, 1, 1000);
-			marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
+			marioTween.animate(TweenableParams.alpha, 0, 1, 100);
+//			marioTween.animate(TweenableParams.yPos, 300, 670, 100);
 			juggler.add(marioTween);
 
 			// Event registering
 			saveState1.addEventListener(this, "playerCollision");
 			saveState2.addEventListener(this, "playerCollision");
 			brick.addEventListener(this, "playerCollision");
+			brick2.addEventListener(this, "playerCollision");
+			brick3.addEventListener(this, "playerCollision");
+			brick4.addEventListener(this, "playerCollision");
+			brick5.addEventListener(this, "playerCollision");
+			brick6.addEventListener(this, "playerCollision");
+			brick7.addEventListener(this, "playerCollision");
+			brick8.addEventListener(this, "playerCollision");
+			brick9.addEventListener(this, "playerCollision");
+			brick10.addEventListener(this, "playerCollision");
+			brick11.addEventListener(this, "playerCollision");
 			goal.addEventListener(this, "inGoalEvent");
-
+			button.addEventListener(this, "ButtonPressed");
+			button2.addEventListener(this, "ButtonPressed2");
 
 			if (gameTimer == null) {
 				gameTimer = new GameClock();
@@ -130,6 +191,9 @@ public class BetaLVL05 extends Game implements IEventListener {
 		@Override
 		public void update(ArrayList<String> pressedKeys) {
 			//Reset our flags at start of frame
+			buttonPressed = false;
+			buttonPressed2 = false;
+			
 			inGoal = false;
 
 			//Door logic?
@@ -137,6 +201,7 @@ public class BetaLVL05 extends Game implements IEventListener {
 				Event event = new Event("inGoalEvent", goal);
 				goal.dispatchEvent(event);
 			}
+			
 			
 			
 			
@@ -207,7 +272,7 @@ public class BetaLVL05 extends Game implements IEventListener {
 						Tween marioTween = new Tween(player, transit);
 
 						marioTween.animate(TweenableParams.alpha, 0, 1, 1000);
-						marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
+//						marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
 
 						juggler.add(marioTween);
 					}
@@ -219,8 +284,15 @@ public class BetaLVL05 extends Game implements IEventListener {
 			}
 
 			//hitbox logic
-			if (player != null) {
-
+			if (player != null && button!=null) {
+				
+				// Resetting the button if it is not being stepped on
+				button.setDisplayImage("button.png");
+	        	button.setyPos(740);
+	        	
+	        	button2.setDisplayImage("button.png");
+	        	button2.setyPos(120);
+	        	
 				// Jumping and falling
 				player.setyPos(player.getyPos() + player.getV());
 
@@ -263,15 +335,101 @@ public class BetaLVL05 extends Game implements IEventListener {
 					Event event = new Event("playerCollision", saveState2);
 					saveState2.dispatchEvent(event);
 				}
+				
+				if(player.getHitBox().intersects(button.getHitBox())) {
+					   Event event = new Event("ButtonPressed");
+					   button.dispatchEvent(event);
+				 }
+				
+				if(saveState1.getHitBox().intersects(button.getHitBox())) {
+				    Event event = new Event("ButtonPressed");
+				    button.dispatchEvent(event);
+				}
+				
+				if(saveState2.getHitBox().intersects(button.getHitBox())) {
+				    Event event = new Event("ButtonPressed");
+				    button.dispatchEvent(event);
+				}
+				
+				
+				
+				if(player.getHitBox().intersects(button2.getHitBox())) {
+					   Event event = new Event("ButtonPressed2");
+					   button2.dispatchEvent(event);
+				 }
+				
+				if(saveState1.getHitBox().intersects(button2.getHitBox())) {
+				    Event event = new Event("ButtonPressed2");
+				    button2.dispatchEvent(event);
+				}
+				
+				if(saveState2.getHitBox().intersects(button2.getHitBox())) {
+				    Event event = new Event("ButtonPressed2");
+				    button2.dispatchEvent(event);
+				}
+				
+				
+				
+				
 				if (player.getHitBox().intersects(brick.getHitBox())) {
 					Event event = new Event("playerCollision", brick);
 					brick.dispatchEvent(event);
 				}
-
+				if (player.getHitBox().intersects(brick2.getHitBox())) {
+					Event event = new Event("playerCollision", brick2);
+					brick2.dispatchEvent(event);
+				}
+				if (player.getHitBox().intersects(brick3.getHitBox())) {
+					Event event = new Event("playerCollision", brick3);
+					brick3.dispatchEvent(event);
+				}
+				if (player.getHitBox().intersects(brick4.getHitBox())) {
+					Event event = new Event("playerCollision", brick4);
+					brick4.dispatchEvent(event);
+				}
+				if (player.getHitBox().intersects(brick5.getHitBox())) {
+					Event event = new Event("playerCollision", brick5);
+					brick5.dispatchEvent(event);
+				}
+				if (player.getHitBox().intersects(brick6.getHitBox())) {
+					Event event = new Event("playerCollision", brick6);
+					brick6.dispatchEvent(event);
+				}
+				if (player.getHitBox().intersects(brick7.getHitBox())) {
+					Event event = new Event("playerCollision", brick7);
+					brick7.dispatchEvent(event);
+				}
+				if (player.getHitBox().intersects(brick8.getHitBox())) {
+					Event event = new Event("playerCollision", brick8);
+					brick8.dispatchEvent(event);
+				}
+				if (player.getHitBox().intersects(brick9.getHitBox())&&buttonPressed==false) {
+					Event event = new Event("playerCollision", brick9);
+					brick9.dispatchEvent(event);
+				}
+				if (player.getHitBox().intersects(brick10.getHitBox())) {
+					Event event = new Event("playerCollision", brick10);
+					brick10.dispatchEvent(event);
+				}
+				if (player.getHitBox().intersects(brick11.getHitBox())) {
+					Event event = new Event("playerCollision", brick11);
+					brick11.dispatchEvent(event);
+				}
+				
 
 				juggler.getInstance().nextFrame();
 
 			}
+			
+			 if(buttonPressed == false){
+				 brick9.setxPos(720);
+				 brick9.setyPos(650);
+			 }
+			 
+			 if(buttonPressed2 == false){
+				 brick11.setxPos(500);
+				 brick11.setyPos(600);
+			 }
 
 			// Making it so we can only hit S once every ten frames
 			if (sFrames > 0) {
@@ -299,6 +457,19 @@ public class BetaLVL05 extends Game implements IEventListener {
 			if (player != null) {
 				goal.draw(g);
 				brick.draw(g);
+				brick2.draw(g);
+				brick3.draw(g);
+				brick4.draw(g);
+				brick5.draw(g);
+				brick6.draw(g);
+				brick7.draw(g);
+				brick8.draw(g);
+				brick9.draw(g);
+				brick10.draw(g);
+				brick11.draw(g);
+				button.draw(g);
+				button2.draw(g);
+				
 				player.draw(g);
 
 
@@ -317,8 +488,8 @@ public class BetaLVL05 extends Game implements IEventListener {
 		 * the timer that calls update() and draw() every frame
 		 */
 		public static void main(String[] args) {
-//			game = new Beta();
-//			game.start();
+			BetaLVL05 game = new BetaLVL05();
+			game.start();
 
 		}
 
@@ -326,25 +497,34 @@ public class BetaLVL05 extends Game implements IEventListener {
 
 		public void handleEvent(Event event) {
 
-			// Objective event
-			if (event.getEventType() == "CoinPickedUp") {
-				player.setAlpha(0);
-				System.out.println("Quest is completed!");
-
-			}
+			// This event is called when the button is pressed
+	        if(event.getEventType()=="ButtonPressed") {
+	        	buttonPressed = true;
+	            System.out.println("Button is being pressed");
+	            button.setDisplayImage("button_pressed.png");
+	            //Set position of the pressed button sprite a little bit lower so that it looks better
+	            button.setyPos(753);
+	            
+	            brick9.setxPos(1000000);
+	            brick9.setyPos(1000000);
+	        }
+	        
+	        if(event.getEventType()=="ButtonPressed2") {
+	        	buttonPressed2 = true;
+	            System.out.println("Button2 is being pressed");
+	            button2.setDisplayImage("button_pressed.png");
+	            //Set position of the pressed button sprite a little bit lower so that it looks better
+	            button2.setyPos(135);
+	            
+	            brick11.setxPos(10000);
+	            brick11.setyPos(10000);
+	        }
 
 			//Intersecting with door
 			if (event.getEventType() == "inGoalEvent") {
 				inGoal = true;
 			}
 
-			// Button pressed event
-			if (event.getEventType() == "ButtonPressed") {
-				System.out.println("Button is being pressed");
-				// Set position of the pressed button sprite a little bit lower so
-				// that it looks better
-
-			}
 
 			if (event.getEventType() == "playerCollision") {
 				System.out.println("Collision with: ");
@@ -363,7 +543,6 @@ public class BetaLVL05 extends Game implements IEventListener {
 							player.setOnGround(true);
 						} else {
 							player.setV(0);
-							;
 							player.setyPos(source.getyPos() + source.getHeight());
 						}
 					}
@@ -371,12 +550,12 @@ public class BetaLVL05 extends Game implements IEventListener {
 					else {
 
 						if (inter.getX() == source.getxPos()) {
-							player.setxPos(source.getxPos() - player.getWidth());
+							player.setxPos(source.getxPos() - player.getWidth()-10);
 						}
 
 						// intersect from right, hitbox start from right of coin
 						if (inter.getX() + inter.getWidth() == source.getxPos() + source.getWidth()) {
-							player.setxPos(source.getxPos() + source.getWidth());
+							player.setxPos(source.getxPos() + source.getWidth()+10);
 						}
 						player.setOnGround(false);
 					}

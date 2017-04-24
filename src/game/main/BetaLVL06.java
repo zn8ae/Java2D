@@ -160,7 +160,7 @@ public class BetaLVL06 extends Game implements IEventListener
 		
         marioTween.animate(TweenableParams.alpha, 0, 1, 1000);
         marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
-        angryTween.animate(TweenableParams.yPos, 225, 700, 2000);
+        angryTween.animate(TweenableParams.yPos, 225, 680, 2000);
         
 
         juggler.add(marioTween);
@@ -535,7 +535,6 @@ public class BetaLVL06 extends Game implements IEventListener
             gate.setV(0);
             platform.setV(0);
 
-
         }
         
         if(event.getEventType()=="ButtonPressed2") {
@@ -560,14 +559,17 @@ public class BetaLVL06 extends Game implements IEventListener
 
         // Tween event
         if(event.getEventType()==TweenEvent.TWEEN_COMPLETE_EVENT) {
+           Tween source = (Tween) event.getSource();
+           System.out.println(source.toString());
            if(compTween.isComplete()) {
 	           compTween.removeEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
 	           System.out.println("Quest Completed");
 	           this.pause();
            }
+           
            if(angryTween.isComplete()) {
-        	  
         	   System.out.println("angry is real");
+        	   
            }
            
         }
