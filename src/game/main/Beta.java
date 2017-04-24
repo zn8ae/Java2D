@@ -66,10 +66,23 @@ public class Beta extends Game implements IEventListener {
 	int sFrames = 0;
 
 	// Button sprites and variables
+	Sprite button = new Sprite("button", "button.png");
+	boolean ButtonPressed = false;
+	Sprite button2 = new Sprite("button2", "button.png");
+	boolean ButtonPressed2 = false;
 
 	// Platform sprites and variables
+	Brick brick = new Brick("Brick","Brick.png");
+
+
+    Brick cageDoor4 = new Brick("CageDoor4","cage.png");
+    Brick cageDoor5 = new Brick("CageDoor5","cage.png");
+
 
 	// Hazards sprites and variables
+    Brick angryBrick = new Brick("AngryBrick","AngryBrick.png");
+    Brick angryBrick2 = new Brick("AngryBrick2","AngryBrick.png");
+    Brick angryBrick3 = new Brick("AngryBrick3","AngryBrick.png");
 
 	// Objective sprites and variables
 	Sprite door1 = new Sprite("door1","door1.png");
@@ -128,6 +141,40 @@ public class Beta extends Game implements IEventListener {
 		
 	}
 	
+	public void reset(){
+		save1 = false;
+		save2 = false;
+		//Quickly put our old saves states in the corner so that they do not get in the way
+		saveState1.setxPos(0);
+		saveState1.setyPos(0);
+		saveState2.setxPos(0);
+		saveState2.setyPos(0);
+		
+		// We have a hashMap of <Sprite, Starting x and y>
+		Iterator entries = startingPositions.entrySet().iterator();
+		while (entries.hasNext()) {
+			// Grab our sprite and Point
+			Entry thisEntry = (Entry) entries.next();
+			Object sprite = thisEntry.getKey();
+			Object pos = thisEntry.getValue();
+
+			// Set our sprite back to it's starting position
+			((Sprite) sprite).setxPos(((Point) pos).getX());
+			((Sprite) sprite).setyPos(((Point) pos).getY());
+
+			// An if check to replay our tween if its the player
+			if (((Sprite) sprite).getId().equals("player")) {
+				TweenTransitions transit = new TweenTransitions();
+				Tween marioTween = new Tween(player, transit);
+
+				marioTween.animate(TweenableParams.alpha, 0, 1, 1000);
+				marioTween.animate(TweenableParams.yPos, 300, 670, 1000);
+
+				juggler.add(marioTween);
+			}
+		}
+	}
+	
 
 	public Beta() {
 		super("Beta", MAXWIDTH, MAXHEIGHT);
@@ -156,24 +203,49 @@ public class Beta extends Game implements IEventListener {
 		player.setxPos(20);
 		player.setyPos(640);
 		startingPositions.put(player, new Point((int) player.getxPos(), (int) player.getyPos()));
+		
+		
+		button.setxPos(80);
+		button.setyPos(740);
 
 		door1.setxPos(MAXWIDTH/2-door1.getWidth()-200);
 		door1.setyPos(625);
 		
-		door2.setxPos(MAXWIDTH/2-door2.getWidth());
+		brick.setxPos(MAXWIDTH/2-door2.getWidth());
+		brick.setyPos(650);
+		
+		door2.setxPos(MAXWIDTH/2-door3.getWidth()+200);
 		door2.setyPos(625);
 		
-		door3.setxPos(MAXWIDTH/2-door3.getWidth()+200);
+		angryBrick.setxPos(MAXWIDTH/2-door2.getWidth()+300);
+		angryBrick.setyPos(650);
+		
+		door3.setxPos(MAXWIDTH/2-door3.getWidth()+400);
 		door3.setyPos(625);
 		
 		door4.setxPos(MAXWIDTH/2-door4.getWidth()-200);
-		door4.setyPos(400);
+		door4.setyPos(275);
 		
-		door5.setxPos(MAXWIDTH/2-door5.getWidth());
-		door5.setyPos(400);
+		cageDoor4.setxPos(MAXWIDTH/2-cageDoor4.getWidth()-140);
+		cageDoor4.setyPos(250);
 		
-		door6.setxPos(MAXWIDTH/2-door6.getWidth()+200);
-		door6.setyPos(400);
+		door5.setxPos(MAXWIDTH/2-door5.getWidth()+100);
+		door5.setyPos(150);
+		
+		cageDoor5.setxPos(MAXWIDTH/2-cageDoor5.getWidth()+160);
+		cageDoor5.setyPos(125);
+		
+		button2.setxPos(MAXWIDTH-50);
+		button2.setyPos(740);
+		
+		door6.setxPos(MAXWIDTH-door6.getWidth()-100);
+		door6.setyPos(100);
+		
+		angryBrick2.setxPos(MAXWIDTH-door6.getWidth()-190);
+		angryBrick2.setyPos(10);
+		
+		angryBrick3.setxPos(MAXWIDTH-door6.getWidth()-25);
+		angryBrick3.setyPos(MAXHEIGHT/2);
 		
 		// Player tweens
 		TweenTransitions transit = new TweenTransitions();
@@ -185,6 +257,20 @@ public class Beta extends Game implements IEventListener {
 		// Event registering
 		saveState1.addEventListener(this, "playerCollision");
 		saveState2.addEventListener(this, "playerCollision");
+		
+		brick.addEventListener(this, "playerCollision");
+		
+		angryBrick.addEventListener(this, "hazardCollision");
+		angryBrick2.addEventListener(this, "hazardCollision");
+		angryBrick3.addEventListener(this, "hazardCollision");
+		
+		cageDoor4.addEventListener(this, "playerCollision");
+		cageDoor5.addEventListener(this, "playerCollision");
+		button.addEventListener(this, "ButtonPressed");
+		button2.addEventListener(this, "ButtonPressed");
+
+
+
 		door1.addEventListener(this, "inDoor1Event");
 		door2.addEventListener(this, "inDoor2Event");
 		door3.addEventListener(this, "inDoor3Event");
@@ -212,6 +298,39 @@ public class Beta extends Game implements IEventListener {
 		inDoor4 = false;
 		inDoor5 = false;
 		inDoor6 = false;
+		ButtonPressed = false;
+		ButtonPressed2 = false;
+
+		
+		button.setDisplayImage("button.png");
+		button.setyPos(740);
+		
+		button2.setDisplayImage("button.png");
+		button2.setyPos(740);
+		
+		if(lvl05Complete){
+            // Show falling brick 2
+            angryBrick2.setyPos(angryBrick2.getyPos()+angryBrick2.getV());
+            angryBrick2.setV((angryBrick2.getG()+angryBrick2.getV()));
+            
+            if(angryBrick2.getyPos() > MAXHEIGHT){
+            	angryBrick2.setyPos(50);
+            	angryBrick2.setV(0);
+            	
+            }
+            
+            
+            
+            // Show falling brick 3
+            angryBrick3.setyPos(angryBrick3.getyPos()+angryBrick3.getV());
+            angryBrick3.setV((angryBrick3.getG()+angryBrick3.getV()));
+            
+            if(angryBrick3.getyPos() > MAXHEIGHT){
+            	angryBrick3.setyPos(20);
+            	angryBrick3.setV(0);
+            	
+            }
+		}
 
 
 		//Door logic
@@ -330,6 +449,37 @@ public class Beta extends Game implements IEventListener {
 			
 
 		}
+		
+		//Button
+		if (player.getHitBox().intersects(button.getHitBox())) {
+			Event event = new Event("ButtonPressed", button);
+			button.dispatchEvent(event);
+		}
+		
+		if (saveState1.getHitBox().intersects(button.getHitBox())) {
+			Event event = new Event("ButtonPressed", button);
+			button.dispatchEvent(event);
+		}
+		
+		if (saveState2.getHitBox().intersects(button.getHitBox())) {
+			Event event = new Event("ButtonPressed", button);
+			button.dispatchEvent(event);
+		}
+		
+		if (player.getHitBox().intersects(button2.getHitBox())) {
+			Event event = new Event("ButtonPressed2", button2);
+			button2.dispatchEvent(event);
+		}
+		
+		if (saveState1.getHitBox().intersects(button2.getHitBox())) {
+			Event event = new Event("ButtonPressed2", button2);
+			button2.dispatchEvent(event);
+		}
+		
+		if (saveState2.getHitBox().intersects(button2.getHitBox())) {
+			Event event = new Event("ButtonPressed2", button2);
+			button2.dispatchEvent(event);
+		}
 
 		// Our "save" function key
 		if (pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_SPACE)) && sFrames == 0) {
@@ -433,6 +583,33 @@ public class Beta extends Game implements IEventListener {
 			}
 
 
+			//Object hitboxes
+				//Also want to check that we beat lvl01
+			if (player.getHitBox().intersects(brick.getHitBox()) && lvl01Complete) {
+				Event event = new Event("playerCollision", brick);
+				brick.dispatchEvent(event);
+			}
+			if (player.getHitBox().intersects(angryBrick.getHitBox()) && lvl02Complete) {
+				Event event = new Event("hazardCollision", angryBrick);
+				angryBrick.dispatchEvent(event);
+			}
+			if (player.getHitBox().intersects(angryBrick2.getHitBox()) && lvl05Complete) {
+				Event event = new Event("hazardCollision", angryBrick2);
+				angryBrick2.dispatchEvent(event);
+			}
+			if (player.getHitBox().intersects(angryBrick3.getHitBox()) && lvl05Complete) {
+				Event event = new Event("hazardCollision", angryBrick3);
+				angryBrick3.dispatchEvent(event);
+			}
+			if (player.getHitBox().intersects(cageDoor4.getHitBox()) && lvl03Complete && ButtonPressed == false) {
+				Event event = new Event("playerCollision", cageDoor4);
+				cageDoor4.dispatchEvent(event);
+			}
+			if (player.getHitBox().intersects(cageDoor5.getHitBox()) && lvl04Complete && ButtonPressed2 == false) {
+				Event event = new Event("playerCollision", cageDoor5);
+				cageDoor5.dispatchEvent(event);
+			}
+
 
 			juggler.getInstance().nextFrame();
 
@@ -464,19 +641,39 @@ public class Beta extends Game implements IEventListener {
 		
 		if(lvl01Complete && door2 != null){
 			door2.draw(g);
+			brick.draw(g);
 		}
 		
 		if(lvl02Complete && door3 != null){
 			door3.draw(g);
+			angryBrick.draw(g);
+
 		}
-		if(lvl03Complete && door4 != null){
+		if(lvl03Complete && door4 != null && ButtonPressed == false){
 			door4.draw(g);
+			cageDoor4.draw(g);
+			button.draw(g);
 		}
-		if(lvl04Complete && door5 != null){
+		if(lvl03Complete && door4 != null && ButtonPressed){
+			door4.draw(g);
+			//cageDoor4.draw(g);
+			button.draw(g);
+		}
+		if(lvl04Complete && door5 != null && ButtonPressed2 == false){
 			door5.draw(g);
+			cageDoor5.draw(g);
+			button2.draw(g);
+		}
+		if(lvl04Complete && door5 != null && ButtonPressed2){
+			door5.draw(g);
+			//cageDoor5.draw(g);
+			button2.draw(g);
 		}
 		if(lvl05Complete && door6 != null){
 			door6.draw(g);
+			angryBrick2.draw(g);
+			angryBrick3.draw(g);
+
 		}
 
 
@@ -492,6 +689,8 @@ public class Beta extends Game implements IEventListener {
 			saveState1.draw(g);
 		if (saveState2 != null && save2)
 			saveState2.draw(g);
+		
+		
 
 	}
 
@@ -558,10 +757,29 @@ public class Beta extends Game implements IEventListener {
 		// Button pressed event
 		if (event.getEventType() == "ButtonPressed") {
 			System.out.println("Button is being pressed");
-			// Set position of the pressed button sprite a little bit lower so
-			// that it looks better
+	        button.setDisplayImage("button_pressed.png");
+            //Set position of the pressed button sprite a little bit lower so that it looks better
+	        button.setyPos(760);
+	        ButtonPressed = true;
 
 		}
+		
+		// Button pressed 2 event
+		if (event.getEventType() == "ButtonPressed2") {
+			System.out.println("Button is being pressed2");
+	        button2.setDisplayImage("button_pressed.png");
+            //Set position of the pressed button sprite a little bit lower so that it looks better
+	        button2.setyPos(760);
+	        ButtonPressed2 = true;
+
+		}
+		
+		//Reset event
+		if (event.getEventType() == "hazardCollision") {
+			reset();
+
+		}
+		
 
 		if (event.getEventType() == "playerCollision") {
 			System.out.println("Collision with: ");

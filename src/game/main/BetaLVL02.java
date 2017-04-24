@@ -337,6 +337,11 @@ public class BetaLVL02 extends Game implements IEventListener {
 		public void reset(){
 			save1 = false;
 			save2 = false;
+			//Quickly put our old saves states in the corner so that they do not get in the way
+			saveState1.setxPos(0);
+			saveState1.setyPos(0);
+			saveState2.setxPos(0);
+			saveState2.setyPos(0);
 			
 			// We have a hashMap of <Sprite, Starting x and y>
 			Iterator entries = startingPositions.entrySet().iterator();
