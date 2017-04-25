@@ -5,8 +5,8 @@ Authors: ngb2zf, zn8ae, neb4kb
 
 # Directions
 
--Open in eclipse \n 
--Run Beta.java class \n
+-Open in eclipse
+-Run Beta.java class 
 
 # Controls
 -E : enter doorway (when in the yellow doors)
