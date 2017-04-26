@@ -39,6 +39,11 @@ public class BetaLVL02 extends Game implements IEventListener {
 		static Beta game;
 		int eFrames;
 		Sound bgm;
+		int deathCounter;
+		
+		
+		// Info Sprites
+		Sprite redInfo = new Sprite("redInfo","redInfo.png");
 
 		// Player sprite and save state variables
 		AnimatedSprite player = new AnimatedSprite("player");
@@ -97,6 +102,12 @@ public class BetaLVL02 extends Game implements IEventListener {
 			player.setyPos(640);
 			startingPositions.put(player, new Point((int) player.getxPos(), (int) player.getyPos()));
 
+			redInfo.setxPos(75);
+			redInfo.setyPos(545);
+			redInfo.setAlpha(0f);
+			deathCounter = 0;
+			
+			
 			brick.setxPos(MAXWIDTH/2-300);
 			brick.setyPos(650);
 			
@@ -121,6 +132,7 @@ public class BetaLVL02 extends Game implements IEventListener {
 			brick.addEventListener(this, "playerCollision");
 			angryBrick.addEventListener(this, "hazardCollision");
 			goal.addEventListener(this, "inGoalEvent");
+			redInfo.addEventListener(this, "infoShow");
 
 
 			if (gameTimer == null) {
@@ -143,7 +155,29 @@ public class BetaLVL02 extends Game implements IEventListener {
 				Event event = new Event("inGoalEvent", goal);
 				goal.dispatchEvent(event);
 			}
+			System.out.println("Death Counter:"+deathCounter);
 			
+			
+			if(redInfo.getAlpha()>.05){
+				redInfo.setAlpha(redInfo.getAlpha()-.05);
+
+			}
+			else{
+				redInfo.setAlpha(0f);
+
+			}
+			
+			
+//			Rectangle infoRectBox = new Rectangle((int)pressUpInfo.getxPos(), 
+//			(int)pressUpInfo.getyPos(), (int)pressUpInfo.getWidth(), 
+//			(int)pressUpInfo.getHeight());
+			if (player.getHitBox().intersects((int)redInfo.getxPos()+150, 
+					(int)redInfo.getyPos()-200, (int)redInfo.getWidth()-150, 
+					(int)redInfo.getHeight()+300)) {			
+				Event event = new Event("infoShow", redInfo);
+				redInfo.dispatchEvent(event);
+			}
+	
 			
 			
 			///Key logic
@@ -275,6 +309,7 @@ public class BetaLVL02 extends Game implements IEventListener {
 				}
 				if (player.getHitBox().intersects(angryBrick.getHitBox())) {
 					Event event = new Event("hazardCollision", angryBrick);
+					deathCounter++;
 					angryBrick.dispatchEvent(event);
 				}
 
@@ -310,6 +345,10 @@ public class BetaLVL02 extends Game implements IEventListener {
 				goal.draw(g);
 				brick.draw(g);
 				angryBrick.draw(g);
+				if(deathCounter > 0){
+					redInfo.draw(g);
+					
+				}
 				player.draw(g);
 
 
@@ -381,6 +420,15 @@ public class BetaLVL02 extends Game implements IEventListener {
 			//Intersecting with door
 			if (event.getEventType() == "inGoalEvent") {
 				inGoal = true;
+			}
+			
+			//Intersecting with door1
+			if (event.getEventType() == "infoShow") {
+				System.out.println("infoShow");
+				if(redInfo.getAlpha()<.9){
+					redInfo.setAlpha(redInfo.getAlpha()+.10);
+				}
+
 			}
 
 			// Button pressed event

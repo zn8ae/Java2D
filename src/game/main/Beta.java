@@ -54,7 +54,8 @@ public class Beta extends Game implements IEventListener {
 	static BetaLVL05 level05;
 	static BetaLVL06 level06;
 
-
+	// Info Sprites
+	Sprite pressEInfo = new Sprite("pressEInfo","pressEInfo.png");
 
 	// Player sprite and save state variables
 	AnimatedSprite player = new AnimatedSprite("player");
@@ -106,6 +107,9 @@ public class Beta extends Game implements IEventListener {
 	QuestManager manager = new QuestManager();
 	GameClock gameTimer;
 	TweenJuggler juggler = new TweenJuggler();
+	
+	// Info Sprites
+	
 	
 	// BGM
 	Sound bgm;
@@ -208,6 +212,11 @@ public class Beta extends Game implements IEventListener {
 		button.setxPos(80);
 		button.setyPos(740);
 
+		
+		pressEInfo.setxPos(MAXWIDTH/2-door1.getWidth()-375);
+		pressEInfo.setyPos(545);
+		pressEInfo.setAlpha(0f);
+		
 		door1.setxPos(MAXWIDTH/2-door1.getWidth()-200);
 		door1.setyPos(625);
 		
@@ -247,6 +256,8 @@ public class Beta extends Game implements IEventListener {
 		angryBrick3.setxPos(MAXWIDTH-door6.getWidth()-25);
 		angryBrick3.setyPos(MAXHEIGHT/2);
 		
+
+		
 		// Player tweens
 		TweenTransitions transit = new TweenTransitions();
 		Tween marioTween = new Tween(player, transit);
@@ -268,6 +279,8 @@ public class Beta extends Game implements IEventListener {
 		cageDoor5.addEventListener(this, "playerCollision");
 		button.addEventListener(this, "ButtonPressed");
 		button2.addEventListener(this, "ButtonPressed");
+		
+		pressEInfo.addEventListener(this, "infoShow");
 
 
 
@@ -300,6 +313,17 @@ public class Beta extends Game implements IEventListener {
 		inDoor6 = false;
 		ButtonPressed = false;
 		ButtonPressed2 = false;
+
+		
+		if(pressEInfo.getAlpha()>.05){
+			pressEInfo.setAlpha(pressEInfo.getAlpha()-.05);
+
+		}
+		else{
+			pressEInfo.setAlpha(0f);
+
+		}
+
 
 		
 		button.setDisplayImage("button.png");
@@ -338,6 +362,13 @@ public class Beta extends Game implements IEventListener {
 			Event event = new Event("inDoor1Event", door1);
 			door1.dispatchEvent(event);
 		}
+		if (player.getHitBox().intersects(door1.getHitBox())) {			
+			Event event = new Event("infoShow", pressEInfo);
+			pressEInfo.dispatchEvent(event);
+		}
+		
+		
+		
 		if (player.getHitBox().intersects(door2.getHitBox())) {			
 			Event event = new Event("inDoor2Event", door2);
 			door2.dispatchEvent(event);
@@ -639,6 +670,11 @@ public class Beta extends Game implements IEventListener {
 		g.fillRect(0, 0, 1400, 900);
 		
 		
+		
+		if(!lvl01Complete){
+			pressEInfo.draw(g);
+		}
+		
 		if(lvl01Complete && door2 != null){
 			door2.draw(g);
 			brick.draw(g);
@@ -719,6 +755,15 @@ public class Beta extends Game implements IEventListener {
 		if (event.getEventType() == "inDoor1Event") {
 			System.out.println("inDoor1Event");
 			inDoor1 = true;
+
+		}
+		
+		//Intersecting with door1
+		if (event.getEventType() == "infoShow") {
+			System.out.println("infoShow");
+			if(pressEInfo.getAlpha()<.9){
+				pressEInfo.setAlpha(pressEInfo.getAlpha()+.10);
+			}
 
 		}
 		

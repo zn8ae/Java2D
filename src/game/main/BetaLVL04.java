@@ -41,6 +41,8 @@ public class BetaLVL04 extends Game implements IEventListener {
 			int eFrames;
 			Sound bgm;
 
+			
+			Sprite twoInfo = new Sprite("twoInfo","twoInfo.png");
 			// Player sprite and save state variables
 			AnimatedSprite player = new AnimatedSprite("player");
 			Sprite saveState1 = new Sprite("saveState1", "saved1.png");
@@ -106,6 +108,10 @@ public class BetaLVL04 extends Game implements IEventListener {
 				goal.setxPos(MAXWIDTH-goal.getWidth()-200);
 				goal.setyPos(250);
 				
+				twoInfo.setxPos(MAXWIDTH-goal.getWidth()-400);
+				twoInfo.setyPos(400);
+				twoInfo.setAlpha(0f);
+				
 				// Player tweens
 				TweenTransitions transit = new TweenTransitions();
 				Tween marioTween = new Tween(player, transit);
@@ -119,6 +125,8 @@ public class BetaLVL04 extends Game implements IEventListener {
 				gate.addEventListener(this, "playerCollision");
 				button.addEventListener(this, "buttonPressed");
 				goal.addEventListener(this, "inGoalEvent");
+
+				twoInfo.addEventListener(this, "infoShow");
 
 
 				if (gameTimer == null) {
@@ -143,6 +151,26 @@ public class BetaLVL04 extends Game implements IEventListener {
 				if (player.getHitBox().intersects(goal.getHitBox())) {			
 					Event event = new Event("inGoalEvent", goal);
 					goal.dispatchEvent(event);
+				}
+				
+				if(twoInfo.getAlpha()>.05){
+					twoInfo.setAlpha(twoInfo.getAlpha()-.05);
+
+			}
+				else{
+					twoInfo.setAlpha(0f);
+
+				}
+				
+				
+//				Rectangle infoRectBox = new Rectangle((int)spaceInfo.getxPos(), 
+//				(int)spaceInfo.getyPos(), (int)spaceInfo.getWidth(), 
+//				(int)spaceInfo.getHeight()+500);
+				if (player.getHitBox().intersects((int)twoInfo.getxPos()-50, 
+						(int)twoInfo.getyPos(), (int)twoInfo.getWidth()+150, 
+						(int)twoInfo.getHeight()+300)) {			
+					Event event = new Event("infoShow", twoInfo);
+					twoInfo.dispatchEvent(event);
 				}
 				
 				///Key logic
@@ -321,6 +349,7 @@ public class BetaLVL04 extends Game implements IEventListener {
 					goal.draw(g);
 					button.draw(g);
 					gate.draw(g);
+					twoInfo.draw(g);
 					player.draw(g);
 					//brick.draw(g);
 				}
@@ -357,6 +386,15 @@ public class BetaLVL04 extends Game implements IEventListener {
 				//Intersecting with door
 				if (event.getEventType() == "inGoalEvent") {
 					inGoal = true;
+				}
+				
+				//Intersecting with door1
+				if (event.getEventType() == "infoShow") {
+					System.out.println("infoShow");
+					if(twoInfo.getAlpha()<.9){
+						twoInfo.setAlpha(twoInfo.getAlpha()+.10);
+					}
+
 				}
 
 				// Button pressed event

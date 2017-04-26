@@ -40,6 +40,8 @@ public class BetaLVL01 extends Game implements IEventListener {
 		int eFrames;
 		Sound bgm;
 
+		// Info Sprites
+		Sprite pressUpInfo = new Sprite("pressUpInfo","pressUpInfo.png");
 
 		// Player sprite and save state variables
 		AnimatedSprite player = new AnimatedSprite("player");
@@ -97,7 +99,10 @@ public class BetaLVL01 extends Game implements IEventListener {
 
 			brick.setxPos(MAXWIDTH/2-100);
 			brick.setyPos(650);
-
+			
+			pressUpInfo.setxPos(MAXWIDTH/2-285);
+			pressUpInfo.setyPos(545);
+			pressUpInfo.setAlpha(0f);
 			
 			
 			goal.setxPos(MAXWIDTH-goal.getWidth()-200);
@@ -115,6 +120,7 @@ public class BetaLVL01 extends Game implements IEventListener {
 			saveState2.addEventListener(this, "playerCollision");
 			brick.addEventListener(this, "playerCollision");
 			goal.addEventListener(this, "inGoalEvent");
+			pressUpInfo.addEventListener(this, "infoShow");
 
 
 			if (gameTimer == null) {
@@ -138,7 +144,24 @@ public class BetaLVL01 extends Game implements IEventListener {
 				goal.dispatchEvent(event);
 			}
 			
+			if(pressUpInfo.getAlpha()>.05){
+				pressUpInfo.setAlpha(pressUpInfo.getAlpha()-.05);
+
+			}
+			else{
+				pressUpInfo.setAlpha(0f);
+
+			}
 			
+//			Rectangle infoRectBox = new Rectangle((int)pressUpInfo.getxPos(), 
+//					(int)pressUpInfo.getyPos(), (int)pressUpInfo.getWidth(), 
+//					(int)pressUpInfo.getHeight());
+			if (player.getHitBox().intersects((int)pressUpInfo.getxPos(), 
+					(int)pressUpInfo.getyPos()-200, (int)pressUpInfo.getWidth()-50, 
+					(int)pressUpInfo.getHeight()+300)) {			
+				Event event = new Event("infoShow", pressUpInfo);
+				pressUpInfo.dispatchEvent(event);
+			}
 			
 			///Key logic
 			if (pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_E)) && eFrames == 0) {
@@ -299,6 +322,7 @@ public class BetaLVL01 extends Game implements IEventListener {
 			if (player != null) {
 				goal.draw(g);
 				brick.draw(g);
+				pressUpInfo.draw(g);
 				player.draw(g);
 
 
@@ -317,7 +341,7 @@ public class BetaLVL01 extends Game implements IEventListener {
 		 * the timer that calls update() and draw() every frame
 		 */
 		public static void main(String[] args) {
-//			game = new Beta();
+//			game = new BetaLVL01();
 //			game.start();
 
 		}
@@ -336,6 +360,15 @@ public class BetaLVL01 extends Game implements IEventListener {
 			//Intersecting with door
 			if (event.getEventType() == "inGoalEvent") {
 				inGoal = true;
+			}
+			
+			//Intersecting with door1
+			if (event.getEventType() == "infoShow") {
+				System.out.println("infoShow");
+				if(pressUpInfo.getAlpha()<.9){
+					pressUpInfo.setAlpha(pressUpInfo.getAlpha()+.10);
+				}
+
 			}
 
 			// Button pressed event

@@ -41,7 +41,7 @@ public class BetaLVL03 extends Game implements IEventListener {
 		static Beta game;
 		int eFrames;
 		Sound bgm;
-
+		Sprite spaceInfo = new Sprite("redInfo","pressSpaceInfo.png");
 
 		// Player sprite and save state variables
 		AnimatedSprite player = new AnimatedSprite("player");
@@ -102,6 +102,10 @@ public class BetaLVL03 extends Game implements IEventListener {
 			gate.setxPos(650);
 			gate.setyPos(470);
 			
+			spaceInfo.setxPos(200);
+			spaceInfo.setyPos(450);
+			spaceInfo.setAlpha(0f);
+			
 			button.setxPos(400);
 			button.setyPos(740);
 			
@@ -121,6 +125,8 @@ public class BetaLVL03 extends Game implements IEventListener {
 			gate.addEventListener(this, "playerCollision");
 			button.addEventListener(this, "buttonPressed");
 			goal.addEventListener(this, "inGoalEvent");
+			
+			spaceInfo.addEventListener(this, "infoShow");
 
 
 			if (gameTimer == null) {
@@ -145,6 +151,26 @@ public class BetaLVL03 extends Game implements IEventListener {
 			if (player.getHitBox().intersects(goal.getHitBox())) {			
 				Event event = new Event("inGoalEvent", goal);
 				goal.dispatchEvent(event);
+			}
+			
+			if(spaceInfo.getAlpha()>.05){
+				spaceInfo.setAlpha(spaceInfo.getAlpha()-.05);
+
+		}
+			else{
+				spaceInfo.setAlpha(0f);
+
+			}
+			
+			
+//			Rectangle infoRectBox = new Rectangle((int)spaceInfo.getxPos(), 
+//			(int)spaceInfo.getyPos(), (int)spaceInfo.getWidth(), 
+//			(int)spaceInfo.getHeight()+500);
+			if (player.getHitBox().intersects((int)spaceInfo.getxPos()-100, 
+					(int)spaceInfo.getyPos(), (int)spaceInfo.getWidth()+150, 
+					(int)spaceInfo.getHeight()+300)) {			
+				Event event = new Event("infoShow", spaceInfo);
+				spaceInfo.dispatchEvent(event);
 			}
 			
 			///Key logic
@@ -321,8 +347,10 @@ public class BetaLVL03 extends Game implements IEventListener {
 
 			if (player != null) {
 				goal.draw(g);
+				
 				button.draw(g);
 				gate.draw(g);
+				spaceInfo.draw(g);
 				player.draw(g);
 				//brick.draw(g);
 			}
@@ -359,6 +387,14 @@ public class BetaLVL03 extends Game implements IEventListener {
 			//Intersecting with door
 			if (event.getEventType() == "inGoalEvent") {
 				inGoal = true;
+			}
+			//Intersecting with door1
+			if (event.getEventType() == "infoShow") {
+				System.out.println("infoShow");
+				if(spaceInfo.getAlpha()<.9){
+					spaceInfo.setAlpha(spaceInfo.getAlpha()+.10);
+				}
+
 			}
 
 			// Button pressed event
