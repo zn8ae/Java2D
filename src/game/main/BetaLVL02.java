@@ -12,6 +12,10 @@ import edu.virginia.engine.tween.*;
 import edu.virginia.engine.util.GameClock;
 import edu.virginia.engine.util.Sound;
 
+
+
+
+
 //Imports from  java packages
 import java.awt.Color;
 import java.awt.Graphics;
@@ -44,7 +48,8 @@ public class BetaLVL02 extends Game implements IEventListener {
 		
 		// Info Sprites
 		Sprite redInfo = new Sprite("redInfo","redInfo.png");
-
+		Sprite complete = new Sprite("complete", "complete.png");
+		Tween compTween;
 		// Player sprite and save state variables
 		AnimatedSprite player = new AnimatedSprite("player");
 		Sprite saveState1 = new Sprite("saveState1", "saved1.png");
@@ -55,7 +60,7 @@ public class BetaLVL02 extends Game implements IEventListener {
 		int sFrames = 0;
 
 		// Button sprites and variables
-
+		Sprite Background = new Sprite("Background", "background.png");
 		// Platform sprites and variables
 	    Brick brick = new Brick("Brick","Brick.png");
 	    Brick angryBrick = new Brick("AngryBrick","AngryBrick.png");
@@ -81,6 +86,13 @@ public class BetaLVL02 extends Game implements IEventListener {
 		public BetaLVL02() {
 			super("BetaLVL02", MAXWIDTH, MAXHEIGHT);
 			
+			 complete.setxPos(350);
+		     complete.setyPos(180);
+		     complete.setAlpha(0);
+		     complete.setxPivot(200);
+		     complete.setyPivot(280);
+		     TweenTransitions completeLevel = new TweenTransitions();
+		     Tween compTween = new Tween(complete, completeLevel);
 			// Animated sprite, not doing anything now
 			List<String> animatedSpriteList = new ArrayList<String>();
 			animatedSpriteList.add("hero.png");
@@ -164,6 +176,14 @@ public class BetaLVL02 extends Game implements IEventListener {
 			}
 			else{
 				redInfo.setAlpha(0f);
+
+			}
+			if(complete.getAlpha()>.05){
+				complete.setAlpha(complete.getAlpha()-.05);
+
+			}
+			else{
+				complete.setAlpha(0f);
 
 			}
 			
@@ -338,13 +358,15 @@ public class BetaLVL02 extends Game implements IEventListener {
 		public void draw(Graphics g) {
 
 			// Background
-			g.setColor(Color.GRAY);
-			g.fillRect(0, 0, 1400, 900);
-
+			//g.setColor(Color.GRAY);
+			//g.fillRect(0, 0, 1400, 900);
+			Background.draw(g);
+			
 			if (player != null) {
 				goal.draw(g);
 				brick.draw(g);
 				angryBrick.draw(g);
+				complete.draw(g);
 				if(deathCounter > 0){
 					redInfo.draw(g);
 					
@@ -420,6 +442,13 @@ public class BetaLVL02 extends Game implements IEventListener {
 			//Intersecting with door
 			if (event.getEventType() == "inGoalEvent") {
 				inGoal = true;
+				if(complete.getAlpha() < .9) {complete.setAlpha(complete.getAlpha()+.10);}
+			/*	 compTween.animate(TweenableParams.scaleX, 3, 1, 1500);
+		          compTween.animate(TweenableParams.scaleY, 3, 1, 1500);
+		          compTween.animate(TweenableParams.alpha, 0, 1, 1500);
+		          compTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
+
+		          juggler.add(compTween); */
 			}
 			
 			//Intersecting with door1

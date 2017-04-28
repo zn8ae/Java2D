@@ -55,7 +55,7 @@ public class BetaLVL06 extends Game implements IEventListener
     Brick platform = new Brick("platform","platform.png");
     Brick platform2 = new Brick("platform2","platform.png");
 
-
+    Sprite Background = new Sprite("Background", "background.png");
     
     // For showing we can "reset" our game state
     Sprite angryBrick = new Sprite("angryBrick","AngryBrick.png");
@@ -207,7 +207,14 @@ public class BetaLVL06 extends Game implements IEventListener
 
     	TweenTransitions transit = new TweenTransitions();
     	
-    	
+    	/*if(complete.getAlpha()>.05){
+			complete.setAlpha(complete.getAlpha()-.05);
+
+		}
+		else{
+			complete.setAlpha(0f);
+
+		}*/
     	// Our "save" function key
 		if(pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_SPACE)) && sFrames == 0){
 			
@@ -460,9 +467,10 @@ public class BetaLVL06 extends Game implements IEventListener
     @Override
     public void draw(Graphics g){
     	
-    	g.setColor(Color.GRAY);
-    	g.fillRect(0, 0, 1400, 900);
-
+    	//g.setColor(Color.GRAY);
+    	//g.fillRect(0, 0, 1400, 900);
+    	Background.draw(g);
+    	
         if(Mario != null && button != null) {
         	button.draw(g);
         	angryBrick.draw(g);
@@ -511,16 +519,13 @@ public class BetaLVL06 extends Game implements IEventListener
     	
     	//Intersecting with door
 		if (event.getEventType() == "inGoalEvent") {
-		  
+			//if(complete.getAlpha() < .9) {complete.setAlpha(complete.getAlpha()+.10);}
 		  compTween.animate(TweenableParams.scaleX, 3, 1, 1500);
           compTween.animate(TweenableParams.scaleY, 3, 1, 1500);
           compTween.animate(TweenableParams.alpha, 0, 1, 1500);
           compTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
 
-          bgm.stop();
-          bgm = new Sound("complete.mp3");
-          bgm.play();
-          juggler.add(compTween);
+          juggler.add(compTween); 
 		}
         
         // This event is called when the button is pressed

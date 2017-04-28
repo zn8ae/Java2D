@@ -14,6 +14,10 @@ import edu.virginia.engine.util.Sound;
 
 
 
+
+
+
+
 //Imports from  java packages
 import java.awt.Color;
 import java.awt.Graphics;
@@ -42,7 +46,8 @@ public class BetaLVL03 extends Game implements IEventListener {
 		int eFrames;
 		Sound bgm;
 		Sprite spaceInfo = new Sprite("redInfo","pressSpaceInfo.png");
-
+		Sprite complete = new Sprite("complete", "complete.png");
+		Tween compTween;
 		// Player sprite and save state variables
 		AnimatedSprite player = new AnimatedSprite("player");
 		Sprite saveState1 = new Sprite("saveState1", "saved1.png");
@@ -53,6 +58,7 @@ public class BetaLVL03 extends Game implements IEventListener {
 		int sFrames = 0;
 
 		// Button sprites and variables
+		Sprite Background = new Sprite("Background", "background.png");
 		Sprite button = new Sprite("button", "button.png");
 		boolean ButtonPressed = false;
 		// Platform sprites and variables
@@ -77,7 +83,13 @@ public class BetaLVL03 extends Game implements IEventListener {
 
 		public BetaLVL03() {
 			super("BetaLVL03", MAXWIDTH, MAXHEIGHT);
-			
+			 complete.setxPos(350);
+		        complete.setyPos(180);
+		        complete.setAlpha(0);
+		        complete.setxPivot(200);
+		        complete.setyPivot(280);
+		        TweenTransitions completeLevel = new TweenTransitions();
+			     Tween compTween = new Tween(complete, completeLevel);
 			// Animated sprite, not doing anything now
 			List<String> animatedSpriteList = new ArrayList<String>();
 			animatedSpriteList.add("hero.png");
@@ -162,6 +174,14 @@ public class BetaLVL03 extends Game implements IEventListener {
 
 			}
 			
+			if(complete.getAlpha()>.05){
+				complete.setAlpha(complete.getAlpha()-.05);
+
+			}
+			else{
+				complete.setAlpha(0f);
+
+			}
 			
 //			Rectangle infoRectBox = new Rectangle((int)spaceInfo.getxPos(), 
 //			(int)spaceInfo.getyPos(), (int)spaceInfo.getWidth(), 
@@ -342,8 +362,9 @@ public class BetaLVL03 extends Game implements IEventListener {
 		public void draw(Graphics g) {
 
 			// Background
-			g.setColor(Color.GRAY);
-			g.fillRect(0, 0, 1400, 900);
+			//g.setColor(Color.GRAY);
+			//g.fillRect(0, 0, 1400, 900);
+			Background.draw(g);
 
 			if (player != null) {
 				goal.draw(g);
@@ -352,6 +373,7 @@ public class BetaLVL03 extends Game implements IEventListener {
 				gate.draw(g);
 				spaceInfo.draw(g);
 				player.draw(g);
+				complete.draw(g);
 				//brick.draw(g);
 			}
 
@@ -387,6 +409,13 @@ public class BetaLVL03 extends Game implements IEventListener {
 			//Intersecting with door
 			if (event.getEventType() == "inGoalEvent") {
 				inGoal = true;
+				if(complete.getAlpha() < .9) {complete.setAlpha(complete.getAlpha()+.10);}
+			/*	 compTween.animate(TweenableParams.scaleX, 3, 1, 1500);
+		          compTween.animate(TweenableParams.scaleY, 3, 1, 1500);
+		          compTween.animate(TweenableParams.alpha, 0, 1, 1500);
+		          compTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
+
+		          juggler.add(compTween);*/
 			}
 			//Intersecting with door1
 			if (event.getEventType() == "infoShow") {

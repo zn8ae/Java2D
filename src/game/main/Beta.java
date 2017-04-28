@@ -12,6 +12,7 @@ import edu.virginia.engine.tween.*;
 import edu.virginia.engine.util.GameClock;
 import edu.virginia.engine.util.Sound;
 
+
 //Imports from  java packages
 import java.awt.Color;
 import java.awt.Graphics;
@@ -36,6 +37,7 @@ public class Beta extends Game implements IEventListener {
 	static int MAXWIDTH = 1200;
 	
 	//Completed levels?
+	boolean lvlStart = false;
 	boolean lvl01Complete = false;
 	boolean lvl02Complete = false;
 	boolean lvl03Complete = false;
@@ -54,8 +56,13 @@ public class Beta extends Game implements IEventListener {
 	static BetaLVL05 level05;
 	static BetaLVL06 level06;
 
+
+	Sprite Background = new Sprite("Background", "background.png");
+	Sprite Splash = new Sprite("Splash", "Splash.png");
+
 	// Info Sprites
 	Sprite pressEInfo = new Sprite("pressEInfo","pressEInfo.png");
+
 
 	// Player sprite and save state variables
 	AnimatedSprite player = new AnimatedSprite("player");
@@ -86,6 +93,7 @@ public class Beta extends Game implements IEventListener {
     Brick angryBrick3 = new Brick("AngryBrick3","AngryBrick.png");
 
 	// Objective sprites and variables
+    
 	Sprite door1 = new Sprite("door1","door1.png");
 	boolean inDoor1 = false;
 	Sprite door2 = new Sprite("door2","door2.png");
@@ -98,7 +106,6 @@ public class Beta extends Game implements IEventListener {
 	boolean inDoor5 = false;
 	Sprite door6 = new Sprite("door6","door6.png");
 	boolean inDoor6 = false;
-	
 	// Holds the starting positions of all our moveable sprites, so that they
 	// can be reset when we "save/reload"
 	HashMap<Sprite, Point> startingPositions = new HashMap<Sprite, Point>();
@@ -117,24 +124,29 @@ public class Beta extends Game implements IEventListener {
 	public void setLevelComplete(int inLevel){
 		switch(inLevel){
 		case 1:
+			lvlStart = true;
 			lvl01Complete = true;
 			break;
 		case 2:
+			lvlStart = true;
 			lvl01Complete = true;
 			lvl02Complete = true;
 			break;
 		case 3:
+			lvlStart = true;
 			lvl01Complete = true;
 			lvl02Complete = true;
 			lvl03Complete = true;
 			break;
 		case 4:
+			lvlStart = true;
 			lvl01Complete = true;
 			lvl02Complete = true;
 			lvl03Complete = true;
 			lvl04Complete = true;
 			break;
 		case 5:
+			lvlStart = true;
 			lvl01Complete = true;
 			lvl02Complete = true;
 			lvl03Complete = true;
@@ -182,7 +194,11 @@ public class Beta extends Game implements IEventListener {
 
 	public Beta() {
 		super("Beta", MAXWIDTH, MAXHEIGHT);
-		
+		TweenTransitions screen = new TweenTransitions();
+		Tween splashTween = new Tween(Splash, screen);
+		juggler.add(splashTween);
+		splashTween.animate(TweenableParams.alpha, 1, 0, 3000);
+		System.out.println(lvlStart);
 		// Animated sprite, not doing anything now
 		List<String> animatedSpriteList = new ArrayList<String>();
 		animatedSpriteList.add("hero.png");
@@ -283,7 +299,6 @@ public class Beta extends Game implements IEventListener {
 		pressEInfo.addEventListener(this, "infoShow");
 
 
-
 		door1.addEventListener(this, "inDoor1Event");
 		door2.addEventListener(this, "inDoor2Event");
 		door3.addEventListener(this, "inDoor3Event");
@@ -305,6 +320,8 @@ public class Beta extends Game implements IEventListener {
 	@Override
 	public void update(ArrayList<String> pressedKeys) {
 		//Reset our flags at start of frame
+		if(Splash.getAlpha() < .08f){lvlStart = true;}
+		//lvlStart = true;
 		inDoor1 = false;
 		inDoor2 = false;
 		inDoor3 = false;
@@ -668,6 +685,16 @@ public class Beta extends Game implements IEventListener {
 		// Background
 		g.setColor(Color.GRAY);
 		g.fillRect(0, 0, 1400, 900);
+		Background.draw(g);
+		
+		if(!lvlStart){
+		Splash.draw(g);
+		System.out.println("Drawing lvlStart");
+		}
+		
+		if(lvlStart){
+		door1.draw(g);
+		}
 		
 		
 		
@@ -678,6 +705,7 @@ public class Beta extends Game implements IEventListener {
 		if(lvl01Complete && door2 != null){
 			door2.draw(g);
 			brick.draw(g);
+			
 		}
 		
 		if(lvl02Complete && door3 != null){
@@ -709,12 +737,10 @@ public class Beta extends Game implements IEventListener {
 			door6.draw(g);
 			angryBrick2.draw(g);
 			angryBrick3.draw(g);
-
 		}
 
 
 		if (player != null) {
-			door1.draw(g);
 			player.draw(g);
 
 
@@ -750,6 +776,7 @@ public class Beta extends Game implements IEventListener {
 			System.out.println("Quest is completed!");
 
 		}
+		
 
 		//Intersecting with door1
 		if (event.getEventType() == "inDoor1Event") {

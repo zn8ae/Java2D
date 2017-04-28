@@ -243,7 +243,7 @@ public class DisplayObject {
 			g2d.drawImage(displayImage, 0, 0,
 					(int) (getUnscaledWidth()),
 					(int) (getUnscaledHeight()), null);
-			g.drawOval(0, 0, 5, 5);
+//			g.drawOval(0, 0, 5, 5);
 
 
 			/*
