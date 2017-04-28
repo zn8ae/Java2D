@@ -14,10 +14,6 @@ import edu.virginia.engine.util.Sound;
 
 
 
-
-
-
-
 //Imports from  java packages
 import java.awt.Color;
 import java.awt.Graphics;
@@ -36,7 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-public class BetaLVL03 extends Game implements IEventListener {
+public class BetaLVL01 extends Game implements IEventListener {
 	 //Size of our Game
 		static int MAXHEIGHT = 800;
 		static int MAXWIDTH = 1200;
@@ -45,7 +41,9 @@ public class BetaLVL03 extends Game implements IEventListener {
 		static Beta game;
 		int eFrames;
 		Sound bgm;
-		Sprite spaceInfo = new Sprite("redInfo","pressSpaceInfo.png");
+
+		// Info Sprites
+		Sprite pressUpInfo = new Sprite("pressUpInfo","pressUpInfo.png");
 		Sprite complete = new Sprite("complete", "complete.png");
 		Tween compTween;
 		// Player sprite and save state variables
@@ -59,10 +57,9 @@ public class BetaLVL03 extends Game implements IEventListener {
 
 		// Button sprites and variables
 		Sprite Background = new Sprite("Background", "background.png");
-		Sprite button = new Sprite("button", "button.png");
-		boolean ButtonPressed = false;
 		// Platform sprites and variables
-	    Sprite gate = new Sprite("gate", "gate.png");
+	    Brick brick = new Brick("Brick","Brick.png");
+	    
 
 		// Hazards sprites and variables
 
@@ -81,15 +78,16 @@ public class BetaLVL03 extends Game implements IEventListener {
 		GameClock gameTimer;
 		TweenJuggler juggler = new TweenJuggler();
 
-		public BetaLVL03() {
-			super("BetaLVL03", MAXWIDTH, MAXHEIGHT);
-			 complete.setxPos(350);
-		        complete.setyPos(180);
-		        complete.setAlpha(0);
-		        complete.setxPivot(200);
-		        complete.setyPivot(280);
-		        TweenTransitions completeLevel = new TweenTransitions();
-			     Tween compTween = new Tween(complete, completeLevel);
+		public BetaLVL01() {
+			super("BetaLVL01", MAXWIDTH, MAXHEIGHT);
+			
+			complete.setxPos(350);
+		     complete.setyPos(180);
+		     complete.setAlpha(0);
+		     complete.setxPivot(200);
+		     complete.setyPivot(280);
+		     TweenTransitions completeLevel = new TweenTransitions();
+		     compTween = new Tween(complete, completeLevel);
 			// Animated sprite, not doing anything now
 			List<String> animatedSpriteList = new ArrayList<String>();
 			animatedSpriteList.add("hero.png");
@@ -102,7 +100,6 @@ public class BetaLVL03 extends Game implements IEventListener {
 			animations.put("run", num);
 			player.setAnimations(animations);
 
-			// Sound info
 			bgm = new Sound("cooking.wav");
 			bgm.loop();
 
@@ -111,15 +108,13 @@ public class BetaLVL03 extends Game implements IEventListener {
 			player.setyPos(640);
 			startingPositions.put(player, new Point((int) player.getxPos(), (int) player.getyPos()));
 
-			gate.setxPos(650);
-			gate.setyPos(470);
+			brick.setxPos(MAXWIDTH/2-100);
+			brick.setyPos(650);
 			
-			spaceInfo.setxPos(200);
-			spaceInfo.setyPos(450);
-			spaceInfo.setAlpha(0f);
+			pressUpInfo.setxPos(MAXWIDTH/2-285);
+			pressUpInfo.setyPos(545);
+			pressUpInfo.setAlpha(0f);
 			
-			button.setxPos(400);
-			button.setyPos(740);
 			
 			goal.setxPos(MAXWIDTH-goal.getWidth()-200);
 			goal.setyPos(645);
@@ -134,11 +129,9 @@ public class BetaLVL03 extends Game implements IEventListener {
 			// Event registering
 			saveState1.addEventListener(this, "playerCollision");
 			saveState2.addEventListener(this, "playerCollision");
-			gate.addEventListener(this, "playerCollision");
-			button.addEventListener(this, "buttonPressed");
+			brick.addEventListener(this, "playerCollision");
 			goal.addEventListener(this, "inGoalEvent");
-			
-			spaceInfo.addEventListener(this, "infoShow");
+			pressUpInfo.addEventListener(this, "infoShow");
 
 
 			if (gameTimer == null) {
@@ -155,9 +148,6 @@ public class BetaLVL03 extends Game implements IEventListener {
 		public void update(ArrayList<String> pressedKeys) {
 			//Reset our flags at start of frame
 			inGoal = false;
-			ButtonPressed = false;
-			button.setDisplayImage("button.png");
-			button.setyPos(740);
 
 			//Door logic?
 			if (player.getHitBox().intersects(goal.getHitBox())) {			
@@ -165,12 +155,12 @@ public class BetaLVL03 extends Game implements IEventListener {
 				goal.dispatchEvent(event);
 			}
 			
-			if(spaceInfo.getAlpha()>.05){
-				spaceInfo.setAlpha(spaceInfo.getAlpha()-.05);
+			if(pressUpInfo.getAlpha()>.05){
+				pressUpInfo.setAlpha(pressUpInfo.getAlpha()-.05);
 
-		}
+			}
 			else{
-				spaceInfo.setAlpha(0f);
+				pressUpInfo.setAlpha(0f);
 
 			}
 			
@@ -183,14 +173,15 @@ public class BetaLVL03 extends Game implements IEventListener {
 
 			}
 			
-//			Rectangle infoRectBox = new Rectangle((int)spaceInfo.getxPos(), 
-//			(int)spaceInfo.getyPos(), (int)spaceInfo.getWidth(), 
-//			(int)spaceInfo.getHeight()+500);
-			if (player.getHitBox().intersects((int)spaceInfo.getxPos()-100, 
-					(int)spaceInfo.getyPos(), (int)spaceInfo.getWidth()+150, 
-					(int)spaceInfo.getHeight()+300)) {			
-				Event event = new Event("infoShow", spaceInfo);
-				spaceInfo.dispatchEvent(event);
+			
+//			Rectangle infoRectBox = new Rectangle((int)pressUpInfo.getxPos(), 
+//					(int)pressUpInfo.getyPos(), (int)pressUpInfo.getWidth(), 
+//					(int)pressUpInfo.getHeight());
+			if (player.getHitBox().intersects((int)pressUpInfo.getxPos(), 
+					(int)pressUpInfo.getyPos()-200, (int)pressUpInfo.getWidth()-50, 
+					(int)pressUpInfo.getHeight()+300)) {			
+				Event event = new Event("infoShow", pressUpInfo);
+				pressUpInfo.dispatchEvent(event);
 			}
 			
 			///Key logic
@@ -198,15 +189,21 @@ public class BetaLVL03 extends Game implements IEventListener {
 				// A ghetto way of making sure this s key if statement is called at
 				// max every 10 frames
 				eFrames = 20;
-						
+				
+				
+				
+				
 				//Check if we are intersecting with door1
 				if(inGoal && eFrames == 20){
 					bgm.stop();
 					game = new Beta();
 					game.start();
-					game.setLevelComplete(3);
+					game.setLevelComplete(1);
 					this.exitGame();
 				}
+
+
+				
 
 			}
 
@@ -310,34 +307,12 @@ public class BetaLVL03 extends Game implements IEventListener {
 					Event event = new Event("playerCollision", saveState2);
 					saveState2.dispatchEvent(event);
 				}
-
-				if (player.getHitBox().intersects(gate.getHitBox())) {
-					Event event = new Event("playerCollision", gate);
-					gate.dispatchEvent(event);
-				}
-				
-				if (player.getHitBox().intersects(button.getHitBox())) {
-					Event event = new Event("ButtonPressed", button);
-					button.dispatchEvent(event);
-				}
-				
-				if (saveState1.getHitBox().intersects(button.getHitBox())) {
-					Event event = new Event("ButtonPressed", button);
-					button.dispatchEvent(event);
-				}
-				
-				if (saveState2.getHitBox().intersects(button.getHitBox())) {
-					Event event = new Event("ButtonPressed", button);
-					button.dispatchEvent(event);
+				if (player.getHitBox().intersects(brick.getHitBox())) {
+					Event event = new Event("playerCollision", brick);
+					brick.dispatchEvent(event);
 				}
 
-				 if(ButtonPressed == false){
-			        	if(gate.getyPos() < 465){
-			            	gate.setyPos(gate.getyPos()+gate.getV());
-			            	gate.setV((gate.getG()+gate.getV())/1);
-			        	}
-			        }
-			    
+
 				juggler.getInstance().nextFrame();
 
 			}
@@ -365,16 +340,14 @@ public class BetaLVL03 extends Game implements IEventListener {
 			//g.setColor(Color.GRAY);
 			//g.fillRect(0, 0, 1400, 900);
 			Background.draw(g);
+			
 
 			if (player != null) {
 				goal.draw(g);
-				
-				button.draw(g);
-				gate.draw(g);
-				spaceInfo.draw(g);
+				brick.draw(g);
+				pressUpInfo.draw(g);
 				player.draw(g);
 				complete.draw(g);
-				//brick.draw(g);
 			}
 
 			// Draw savestates
@@ -390,7 +363,7 @@ public class BetaLVL03 extends Game implements IEventListener {
 		 * the timer that calls update() and draw() every frame
 		 */
 		public static void main(String[] args) {
-//			game = new Beta();
+//			game = new BetaLVL01();
 //			game.start();
 
 		}
@@ -406,22 +379,25 @@ public class BetaLVL03 extends Game implements IEventListener {
 
 			}
 
+			
 			//Intersecting with door
 			if (event.getEventType() == "inGoalEvent") {
 				inGoal = true;
 				if(complete.getAlpha() < .9) {complete.setAlpha(complete.getAlpha()+.10);}
-			/*	 compTween.animate(TweenableParams.scaleX, 3, 1, 1500);
-		          compTween.animate(TweenableParams.scaleY, 3, 1, 1500);
-		          compTween.animate(TweenableParams.alpha, 0, 1, 1500);
-		          compTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
+			    //  compTween.animate(TweenableParams.scaleX, 3, 1, 1500);
+		        //  compTween.animate(TweenableParams.scaleY, 3, 1, 1500);
+		        //  compTween.animate(TweenableParams.alpha, 0, 1, 1500);
+		        //  compTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
 
-		          juggler.add(compTween);*/
+		        //  juggler.add(compTween);
+		          
 			}
+			
 			//Intersecting with door1
 			if (event.getEventType() == "infoShow") {
 				System.out.println("infoShow");
-				if(spaceInfo.getAlpha()<.9){
-					spaceInfo.setAlpha(spaceInfo.getAlpha()+.10);
+				if(pressUpInfo.getAlpha()<.9){
+					pressUpInfo.setAlpha(pressUpInfo.getAlpha()+.10);
 				}
 
 			}
@@ -429,16 +405,8 @@ public class BetaLVL03 extends Game implements IEventListener {
 			// Button pressed event
 			if (event.getEventType() == "ButtonPressed") {
 				System.out.println("Button is being pressed");
-		        button.setDisplayImage("button_pressed.png");
-		            //Set position of the pressed button sprite a little bit lower so that it looks better
-		        button.setyPos(760);
-		            
-		            // Logic for getting gate to raise
-		        ButtonPressed = true;
-		           if(gate.getyPos()>220){
-		            gate.setyPos((gate.getyPos()-5));
-		           }
-		           gate.setV(0);
+				// Set position of the pressed button sprite a little bit lower so
+				// that it looks better
 
 			}
 
@@ -451,7 +419,7 @@ public class BetaLVL03 extends Game implements IEventListener {
 				Rectangle inter4 = player.getHitBox().intersection(saveState2.getHitBox());
 				if (!inter.isEmpty()) {
 
-					// intersect from above, then bottom does not touch ground
+					// intesect from above, then bottom does not touch ground
 					// moreover, edge case
 					if (inter.getY() + inter.getHeight() >= source.getyPos() && inter.getWidth() >= inter.getHeight() + 5) {
 						if (inter.getY() + inter.getHeight() <= source.getyPos() + (source.getHeight() / 2)) {

@@ -13,6 +13,10 @@ import edu.virginia.engine.util.GameClock;
 import edu.virginia.engine.util.Sound;
 
 
+
+
+
+
 //Imports from  java packages
 import java.awt.Color;
 import java.awt.Graphics;
@@ -39,8 +43,11 @@ public class BetaLVL04 extends Game implements IEventListener {
 			// Checking out how to use the level switcher
 			static Beta game;
 			int eFrames;
+			Sound bgm;
 
-
+			Sprite complete = new Sprite("complete", "complete.png");
+			Tween compTween;
+			Sprite twoInfo = new Sprite("twoInfo","twoInfo.png");
 			// Player sprite and save state variables
 			AnimatedSprite player = new AnimatedSprite("player");
 			Sprite saveState1 = new Sprite("saveState1", "saved1.png");
@@ -51,15 +58,13 @@ public class BetaLVL04 extends Game implements IEventListener {
 			int sFrames = 0;
 
 			// Button sprites and variables
+			Sprite Background = new Sprite("Background", "background.png");
 			Sprite button = new Sprite("button", "button.png");
 			boolean ButtonPressed = false;
 			// Platform sprites and variables
 		    Sprite gate = new Sprite("gate", "gate.png");
 
 			// Hazards sprites and variables
-		    Brick bouncyBrick = new Brick("bouncyBrick", "BouncyBrick.png");
-		    Tween roveBrickL = new Tween(bouncyBrick);
-		    Tween roveBrickR = new Tween(bouncyBrick);
 
 			// Objective sprites and variables
 			Sprite goal = new Sprite("goal","goal.png");
@@ -78,7 +83,13 @@ public class BetaLVL04 extends Game implements IEventListener {
 
 			public BetaLVL04() {
 				super("BetaLVL04", MAXWIDTH, MAXHEIGHT);
-				
+				 complete.setxPos(350);
+			        complete.setyPos(180);
+			        complete.setAlpha(0);
+			        complete.setxPivot(200);
+			        complete.setyPivot(280);
+			        TweenTransitions completeLevel = new TweenTransitions();
+				     Tween compTween = new Tween(complete, completeLevel);
 				// Animated sprite, not doing anything now
 				List<String> animatedSpriteList = new ArrayList<String>();
 				animatedSpriteList.add("hero.png");
@@ -92,7 +103,7 @@ public class BetaLVL04 extends Game implements IEventListener {
 				player.setAnimations(animations);
 
 				// Sound info
-				Sound bgm = new Sound("cooking.wav");
+				bgm = new Sound("cooking.wav");
 				bgm.loop();
 
 				// Sprite positioning (SHOULD PROBABLY RE WORK THIS AT SOME POINT)
@@ -106,11 +117,12 @@ public class BetaLVL04 extends Game implements IEventListener {
 				button.setxPos(400);
 				button.setyPos(740);
 				
-				bouncyBrick.setxPos(100);
-				bouncyBrick.setyPos(500);
-				
 				goal.setxPos(MAXWIDTH-goal.getWidth()-200);
 				goal.setyPos(250);
+				
+				twoInfo.setxPos(MAXWIDTH-goal.getWidth()-400);
+				twoInfo.setyPos(400);
+				twoInfo.setAlpha(0f);
 				
 				// Player tweens
 				TweenTransitions transit = new TweenTransitions();
@@ -125,9 +137,8 @@ public class BetaLVL04 extends Game implements IEventListener {
 				gate.addEventListener(this, "playerCollision");
 				button.addEventListener(this, "buttonPressed");
 				goal.addEventListener(this, "inGoalEvent");
-				bouncyBrick.addEventListener(this, "playerCollision");
-				bouncyBrick.addEventListener(this, "moveLeft");
-				bouncyBrick.addEventListener(this, "moveRight");
+
+				twoInfo.addEventListener(this, "infoShow");
 
 
 				if (gameTimer == null) {
@@ -154,6 +165,35 @@ public class BetaLVL04 extends Game implements IEventListener {
 					goal.dispatchEvent(event);
 				}
 				
+				if(twoInfo.getAlpha()>.05){
+					twoInfo.setAlpha(twoInfo.getAlpha()-.05);
+
+			}
+				else{
+					twoInfo.setAlpha(0f);
+
+				}
+				
+				if(complete.getAlpha()>.05){
+					complete.setAlpha(complete.getAlpha()-.05);
+
+				}
+				else{
+					complete.setAlpha(0f);
+
+				}
+				
+				
+//				Rectangle infoRectBox = new Rectangle((int)spaceInfo.getxPos(), 
+//				(int)spaceInfo.getyPos(), (int)spaceInfo.getWidth(), 
+//				(int)spaceInfo.getHeight()+500);
+				if (player.getHitBox().intersects((int)twoInfo.getxPos()-50, 
+						(int)twoInfo.getyPos(), (int)twoInfo.getWidth()+150, 
+						(int)twoInfo.getHeight()+300)) {			
+					Event event = new Event("infoShow", twoInfo);
+					twoInfo.dispatchEvent(event);
+				}
+				
 				///Key logic
 				if (pressedKeys.contains(KeyEvent.getKeyText(KeyEvent.VK_E)) && eFrames == 0) {
 					// A ghetto way of making sure this s key if statement is called at
@@ -162,9 +202,10 @@ public class BetaLVL04 extends Game implements IEventListener {
 							
 					//Check if we are intersecting with door1
 					if(inGoal && eFrames == 20){
+						bgm.stop();
 						game = new Beta();
 						game.start();
-						game.setLevelComplete(1);
+						game.setLevelComplete(4);
 						this.exitGame();
 					}
 
@@ -276,7 +317,6 @@ public class BetaLVL04 extends Game implements IEventListener {
 						gate.dispatchEvent(event);
 					}
 					
-					//Button hitboxes for sprite and save states
 					if (player.getHitBox().intersects(button.getHitBox())) {
 						Event event = new Event("ButtonPressed", button);
 						button.dispatchEvent(event);
@@ -299,38 +339,9 @@ public class BetaLVL04 extends Game implements IEventListener {
 				        	}
 				        }
 				    
-					//Bouncy brick hitboxes
-					 if (player.getHitBox().intersects(bouncyBrick.getHitBox())) {
-							Event event = new Event("playerCollision", bouncyBrick);
-							if(player.getyPos() <= bouncyBrick.getyPos()){player.setyPos(player.getyPos() - 150);}
-							player.setOnGround(true);
-							bouncyBrick.dispatchEvent(event);
-						}
-						
-					 if (saveState1.getHitBox().intersects(bouncyBrick.getHitBox())) {
-							Event event = new Event("playerCollision", bouncyBrick);
-							bouncyBrick.dispatchEvent(event);
-						}
-						
-					 if (saveState2.getHitBox().intersects(bouncyBrick.getHitBox())) {
-							Event event = new Event("playerCollision", bouncyBrick);
-							bouncyBrick.dispatchEvent(event);
-						}
-						
 					juggler.getInstance().nextFrame();
 
 				}
-				
-				if(bouncyBrick.getxPos() >= 250){
-					Event event = new Event("moveLeft", bouncyBrick);
-					bouncyBrick.dispatchEvent(event);
-				}
-				
-				if(bouncyBrick.getxPos() <= 100){
-					Event event = new Event("moveRight", bouncyBrick);
-					bouncyBrick.dispatchEvent(event);
-				}
-				System.out.println(bouncyBrick.getxPos());
 
 				// Making it so we can only hit S once every ten frames
 				if (sFrames > 0) {
@@ -352,15 +363,18 @@ public class BetaLVL04 extends Game implements IEventListener {
 			public void draw(Graphics g) {
 
 				// Background
-				g.setColor(Color.GRAY);
-				g.fillRect(0, 0, 1400, 900);
-
+				//g.setColor(Color.GRAY);
+				//g.fillRect(0, 0, 1400, 900);
+				Background.draw(g);
+				
 				if (player != null) {
 					goal.draw(g);
 					button.draw(g);
 					gate.draw(g);
+					twoInfo.draw(g);
 					player.draw(g);
-					bouncyBrick.draw(g);
+					complete.draw(g);
+					//brick.draw(g);
 				}
 
 				// Draw savestates
@@ -391,22 +405,26 @@ public class BetaLVL04 extends Game implements IEventListener {
 					System.out.println("Quest is completed!");
 
 				}
-				
 
 				//Intersecting with door
 				if (event.getEventType() == "inGoalEvent") {
 					inGoal = true;
+					if(complete.getAlpha() < .9) {complete.setAlpha(complete.getAlpha()+.10);}
+				/*	 compTween.animate(TweenableParams.scaleX, 3, 1, 1500);
+			          compTween.animate(TweenableParams.scaleY, 3, 1, 1500);
+			          compTween.animate(TweenableParams.alpha, 0, 1, 1500);
+			          compTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
+
+			          juggler.add(compTween);*/
 				}
 				
-				//Brick Movement
-				if(event.getEventType() == "moveLeft"){
-					roveBrickL.animate(TweenableParams.xPos, bouncyBrick.getxPos(), 100, 1000);
-					juggler.add(roveBrickL);
-					
-				}
-				if(event.getEventType() == "moveRight"){
-					roveBrickR.animate(TweenableParams.xPos, bouncyBrick.getxPos(), 300, 1000);
-					juggler.add(roveBrickR);
+				//Intersecting with door1
+				if (event.getEventType() == "infoShow") {
+					System.out.println("infoShow");
+					if(twoInfo.getAlpha()<.9){
+						twoInfo.setAlpha(twoInfo.getAlpha()+.10);
+					}
+
 				}
 
 				// Button pressed event
