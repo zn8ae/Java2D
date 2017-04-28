@@ -517,6 +517,9 @@ public class BetaLVL06 extends Game implements IEventListener
           compTween.animate(TweenableParams.alpha, 0, 1, 1500);
           compTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
 
+          bgm.stop();
+          bgm = new Sound("complete.mp3");
+          bgm.play();
           juggler.add(compTween);
 		}
         
