@@ -92,7 +92,7 @@ public class BetaLVL02 extends Game implements IEventListener {
 		     complete.setxPivot(200);
 		     complete.setyPivot(280);
 		     TweenTransitions completeLevel = new TweenTransitions();
-		     Tween compTween = new Tween(complete, completeLevel);
+		     compTween = new Tween(complete, completeLevel);
 			// Animated sprite, not doing anything now
 			List<String> animatedSpriteList = new ArrayList<String>();
 			animatedSpriteList.add("hero.png");
@@ -188,9 +188,6 @@ public class BetaLVL02 extends Game implements IEventListener {
 			}
 			
 			
-//			Rectangle infoRectBox = new Rectangle((int)pressUpInfo.getxPos(), 
-//			(int)pressUpInfo.getyPos(), (int)pressUpInfo.getWidth(), 
-//			(int)pressUpInfo.getHeight());
 			if (player.getHitBox().intersects((int)redInfo.getxPos()+150, 
 					(int)redInfo.getyPos()-200, (int)redInfo.getWidth()-150, 
 					(int)redInfo.getHeight()+300)) {			
@@ -205,21 +202,26 @@ public class BetaLVL02 extends Game implements IEventListener {
 				// A ghetto way of making sure this s key if statement is called at
 				// max every 10 frames
 				eFrames = 20;
-				
-				
-				
+			
 				
 				//Check if we are intersecting with door1
 				if(inGoal && eFrames == 20){
-					bgm.stop();
-					game = new Beta();
-					game.start();
-					game.setLevelComplete(2);
-					this.exitGame();
+
+					TweenTransitions tran = new TweenTransitions();
+					Tween transTween = new Tween(player,tran);
+					transTween.animate(TweenableParams.alpha, 1, 0, 1000);
+					transTween.animate(TweenableParams.yPos, player.getyPos(), -999, 1000);
+					
+					
+					compTween.animate(TweenableParams.scaleX, 3, 1, 1800);
+					compTween.animate(TweenableParams.scaleY, 3, 1, 1800);
+					compTween.animate(TweenableParams.alpha, 0, 1, 1800);
+					compTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
+
+					juggler.add(transTween);
+					juggler.add(compTween);
 				}
 
-
-				
 
 			}
 
@@ -389,9 +391,8 @@ public class BetaLVL02 extends Game implements IEventListener {
 		 * the timer that calls update() and draw() every frame
 		 */
 		public static void main(String[] args) {
-//			game = new Beta();
-//			game.start();
-
+			BetaLVL02 game = new BetaLVL02();
+			game.start();
 		}
 
 		
@@ -432,6 +433,18 @@ public class BetaLVL02 extends Game implements IEventListener {
 
 		public void handleEvent(Event event) {
 
+			if(event.getEventType()==TweenEvent.TWEEN_COMPLETE_EVENT) {
+		          
+		           if(compTween.isComplete()) {
+			           compTween.removeEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
+			           bgm.stop();
+			   		   game = new Beta();
+			   		   game.start();
+			   		   game.setLevelComplete(2);
+			   		   this.exitGame();
+		           }     
+		        }
+			
 			// Objective event
 			if (event.getEventType() == "CoinPickedUp") {
 				player.setAlpha(0);
@@ -442,13 +455,7 @@ public class BetaLVL02 extends Game implements IEventListener {
 			//Intersecting with door
 			if (event.getEventType() == "inGoalEvent") {
 				inGoal = true;
-				if(complete.getAlpha() < .9) {complete.setAlpha(complete.getAlpha()+.10);}
-			/*	 compTween.animate(TweenableParams.scaleX, 3, 1, 1500);
-		          compTween.animate(TweenableParams.scaleY, 3, 1, 1500);
-		          compTween.animate(TweenableParams.alpha, 0, 1, 1500);
-		          compTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
-
-		          juggler.add(compTween); */
+				
 			}
 			
 			//Intersecting with door1

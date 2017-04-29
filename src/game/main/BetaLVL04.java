@@ -89,7 +89,7 @@ public class BetaLVL04 extends Game implements IEventListener {
 			        complete.setxPivot(200);
 			        complete.setyPivot(280);
 			        TweenTransitions completeLevel = new TweenTransitions();
-				     Tween compTween = new Tween(complete, completeLevel);
+				    compTween = new Tween(complete, completeLevel);
 				// Animated sprite, not doing anything now
 				List<String> animatedSpriteList = new ArrayList<String>();
 				animatedSpriteList.add("hero.png");
@@ -202,11 +202,26 @@ public class BetaLVL04 extends Game implements IEventListener {
 							
 					//Check if we are intersecting with door1
 					if(inGoal && eFrames == 20){
-						bgm.stop();
-						game = new Beta();
-						game.start();
-						game.setLevelComplete(4);
-						this.exitGame();
+						eFrames = 20;
+						
+						//Check if we are intersecting with door1
+						if(inGoal && eFrames == 20){
+
+							TweenTransitions tran = new TweenTransitions();
+							Tween transTween = new Tween(player,tran);
+							transTween.animate(TweenableParams.alpha, 1, 0, 1000);
+							transTween.animate(TweenableParams.yPos, player.getyPos(), -999, 1000);
+							
+							
+							compTween.animate(TweenableParams.scaleX, 3, 1, 1800);
+							compTween.animate(TweenableParams.scaleY, 3, 1, 1800);
+							compTween.animate(TweenableParams.alpha, 0, 1, 1800);
+							compTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
+
+							juggler.add(transTween);
+							juggler.add(compTween);
+						}
+
 					}
 
 				}
@@ -399,6 +414,18 @@ public class BetaLVL04 extends Game implements IEventListener {
 
 			public void handleEvent(Event event) {
 
+				if(event.getEventType()==TweenEvent.TWEEN_COMPLETE_EVENT) {
+			          
+			           if(compTween.isComplete()) {
+				           compTween.removeEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
+				           bgm.stop();
+				   		   game = new Beta();
+				   		   game.start();
+				   		   game.setLevelComplete(4);
+				   		   this.exitGame();
+			           }     
+			        }
+				
 				// Objective event
 				if (event.getEventType() == "CoinPickedUp") {
 					player.setAlpha(0);
@@ -409,13 +436,7 @@ public class BetaLVL04 extends Game implements IEventListener {
 				//Intersecting with door
 				if (event.getEventType() == "inGoalEvent") {
 					inGoal = true;
-					if(complete.getAlpha() < .9) {complete.setAlpha(complete.getAlpha()+.10);}
-				/*	 compTween.animate(TweenableParams.scaleX, 3, 1, 1500);
-			          compTween.animate(TweenableParams.scaleY, 3, 1, 1500);
-			          compTween.animate(TweenableParams.alpha, 0, 1, 1500);
-			          compTween.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
-
-			          juggler.add(compTween);*/
+					
 				}
 				
 				//Intersecting with door1

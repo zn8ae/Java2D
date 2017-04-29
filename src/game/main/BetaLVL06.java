@@ -567,19 +567,12 @@ public class BetaLVL06 extends Game implements IEventListener
 
         // Tween event
         if(event.getEventType()==TweenEvent.TWEEN_COMPLETE_EVENT) {
-           Tween source = (Tween) event.getSource();
-           System.out.println(source.toString());
-           if(compTween.isComplete()) {
-	           compTween.removeEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
-	           System.out.println("Quest Completed");
-	           this.pause();
-           }
-           
-           if(angryTween.isComplete()) {
-        	   System.out.println("angry is real");
-        	   
-           }
-           
+        	 if(compTween.isComplete()) {
+		           compTween.removeEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
+		           bgm.stop();
+		   		  
+		   		   this.pause();
+	           } 
         }
         
         
