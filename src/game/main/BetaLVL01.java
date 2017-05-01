@@ -41,6 +41,7 @@ public class BetaLVL01 extends Game implements IEventListener {
 		static Beta game;
 		int eFrames;
 		Sound bgm;
+		Sound success = new Sound("Success.wav");
 
 		// Info Sprites
 		Sprite pressUpInfo = new Sprite("pressUpInfo","pressUpInfo.png");
@@ -100,7 +101,7 @@ public class BetaLVL01 extends Game implements IEventListener {
 			animations.put("run", num);
 			player.setAnimations(animations);
 
-			bgm = new Sound("cooking.wav");
+			bgm = new Sound("Dolphin.wav");
 			bgm.loop();
 
 			// Sprite positioning (SHOULD PROBABLY RE WORK THIS AT SOME POINT)
@@ -387,8 +388,9 @@ public class BetaLVL01 extends Game implements IEventListener {
 
 			// Tween event
 	        if(event.getEventType()==TweenEvent.TWEEN_COMPLETE_EVENT) {
-	          
+	        	success.play();
 	           if(compTween.isComplete()) {
+	        	   
 		           compTween.removeEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
 		           bgm.stop();
 		   		   game = new Beta();
@@ -408,8 +410,7 @@ public class BetaLVL01 extends Game implements IEventListener {
 			
 			//Intersecting with door
 			if (event.getEventType() == "inGoalEvent") {
-				inGoal = true;
-		          
+				inGoal = true; 
 			}
 			
 			//Intersecting with door1

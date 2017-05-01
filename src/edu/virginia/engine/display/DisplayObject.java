@@ -1,6 +1,8 @@
 package edu.virginia.engine.display;
 
 import edu.virginia.engine.events.Event;
+import edu.virginia.engine.util.Sound;
+
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics;
@@ -21,6 +23,8 @@ import javax.imageio.ImageIO;
  *
  * */
 public class DisplayObject {
+	
+	private Sound hop = new Sound("Bleep.wav");
 
 	/* All DisplayObject have a unique id */
 	private String id;
@@ -182,6 +186,7 @@ public class DisplayObject {
                     if(this.isOnGround()) {
                         this.setV(getV()-this.getJumpAcc());
                         this.setOnGround(false);
+                        hop.play();
                     }
                 }
 

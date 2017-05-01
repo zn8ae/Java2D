@@ -59,6 +59,7 @@ public class Beta extends Game implements IEventListener {
 
 	Sprite Background = new Sprite("Background", "background.png");
 	Sprite Splash = new Sprite("Splash", "Splash.png");
+	Sound block = new Sound("Sting.wav");
 
 	// Info Sprites
 	Sprite pressEInfo = new Sprite("pressEInfo","pressEInfo.png");
@@ -849,7 +850,7 @@ public class Beta extends Game implements IEventListener {
 		//Reset event
 		if (event.getEventType() == "hazardCollision") {
 			reset();
-
+			block.play();
 		}
 		
 

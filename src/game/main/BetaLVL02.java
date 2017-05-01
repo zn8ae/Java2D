@@ -43,6 +43,8 @@ public class BetaLVL02 extends Game implements IEventListener {
 		static Beta game;
 		int eFrames;
 		Sound bgm;
+		Sound success = new Sound("Success.wav");
+		Sound block = new Sound("Sting.wav");
 		int deathCounter;
 		
 		
@@ -106,7 +108,7 @@ public class BetaLVL02 extends Game implements IEventListener {
 			player.setAnimations(animations);
 
 			// Sound info
-			bgm = new Sound("cooking.wav");
+			bgm = new Sound("Happy.wav");
 			bgm.loop();
 
 			// Sprite positioning (SHOULD PROBABLY RE WORK THIS AT SOME POINT)
@@ -434,7 +436,7 @@ public class BetaLVL02 extends Game implements IEventListener {
 		public void handleEvent(Event event) {
 
 			if(event.getEventType()==TweenEvent.TWEEN_COMPLETE_EVENT) {
-		          
+		          success.play();
 		           if(compTween.isComplete()) {
 			           compTween.removeEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
 			           bgm.stop();
@@ -478,7 +480,7 @@ public class BetaLVL02 extends Game implements IEventListener {
 			//Reset event
 			if (event.getEventType() == "hazardCollision") {
 				reset();
-
+				block.play();
 			}
 
 			//Collision

@@ -40,6 +40,8 @@ public class BetaLVL06 extends Game implements IEventListener
     boolean buttonPressed = false;
     boolean buttonPressed2 = false;
     Sound bgm;
+    Sound success = new Sound("Success.wav");
+    Sound block = new Sound("Sting.wav");
     
     Brick brick = new Brick("Brick","Brick.png");
     Brick brick2 = new Brick("Brick2","Brick.png");
@@ -92,7 +94,7 @@ public class BetaLVL06 extends Game implements IEventListener
         Mario.setAnimations(animations);
 
 
-        bgm = new Sound("cooking.wav");
+        bgm = new Sound("Arcade.wav");
         bgm.loop();
 
         complete.setxPos(350);
@@ -515,6 +517,7 @@ public class BetaLVL06 extends Game implements IEventListener
 
     	if (event.getEventType() == "hazardCollision") {
 			reset();
+			block.play();
 		}
     	
     	//Intersecting with door
@@ -570,7 +573,7 @@ public class BetaLVL06 extends Game implements IEventListener
         	 if(compTween.isComplete()) {
 		           compTween.removeEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
 		           bgm.stop();
-		   		  
+		           success.play();
 		   		   this.pause();
 	           } 
         }

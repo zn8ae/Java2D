@@ -43,6 +43,7 @@ public class BetaLVL05 extends Game implements IEventListener {
 		static Beta game;
 		int eFrames;
 		Sound bgm;
+		Sound success = new Sound("Success.wav");
 		Sprite complete = new Sprite("complete", "complete.png");
 		Tween compTween;
 		// Player sprite and save state variables
@@ -114,7 +115,7 @@ public class BetaLVL05 extends Game implements IEventListener {
 			player.setAnimations(animations);
 
 			// Sound info
-			bgm = new Sound("cooking.wav");
+			bgm = new Sound("VideoGame.wav");
 			bgm.loop();
 
 			// Sprite positioning (SHOULD PROBABLY RE WORK THIS AT SOME POINT)
@@ -527,8 +528,8 @@ public class BetaLVL05 extends Game implements IEventListener {
 		public void handleEvent(Event event) {
 
 			if(event.getEventType()==TweenEvent.TWEEN_COMPLETE_EVENT) {
-		          
 		           if(compTween.isComplete()) {
+		        	   success.play();
 			           compTween.removeEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
 			           bgm.stop();
 			   		   game = new Beta();
