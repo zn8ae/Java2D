@@ -55,6 +55,7 @@ public class Beta extends Game implements IEventListener {
 	static BetaLVL04 level04;
 	static BetaLVL05 level05;
 	static BetaLVL06 level06;
+	static BetaLVL2Player level2Player;
 
 
 	Sprite Background = new Sprite("Background", "background.png");
@@ -107,6 +108,9 @@ public class Beta extends Game implements IEventListener {
 	boolean inDoor5 = false;
 	Sprite door6 = new Sprite("door6","door6.png");
 	boolean inDoor6 = false;
+	
+	Sprite finalDoor = new Sprite("finalDoor","finaldoor.png");
+	boolean inFinalDoor = false;
 	// Holds the starting positions of all our moveable sprites, so that they
 	// can be reset when we "save/reload"
 	HashMap<Sprite, Point> startingPositions = new HashMap<Sprite, Point>();
@@ -153,6 +157,16 @@ public class Beta extends Game implements IEventListener {
 			lvl03Complete = true;
 			lvl04Complete = true;
 			lvl05Complete = true;
+			break;
+			
+		case 6:
+			lvlStart = true;
+			lvl01Complete = true;
+			lvl02Complete = true;
+			lvl03Complete = true;
+			lvl04Complete = true;
+			lvl05Complete = true;
+			lvl06Complete = true;
 			break;
 		}
 		
@@ -234,6 +248,9 @@ public class Beta extends Game implements IEventListener {
 		pressEInfo.setyPos(545);
 		pressEInfo.setAlpha(0f);
 		
+		finalDoor.setxPos(150);
+		finalDoor.setyPos(645);
+		
 		door1.setxPos(MAXWIDTH/2-door1.getWidth()-200);
 		door1.setyPos(625);
 		
@@ -306,6 +323,8 @@ public class Beta extends Game implements IEventListener {
 		door4.addEventListener(this, "inDoor4Event");
 		door5.addEventListener(this, "inDoor5Event");
 		door6.addEventListener(this, "inDoor6Event");
+		
+		finalDoor.addEventListener(this, "inFinalDoorEvent");
 
 
 		if (gameTimer == null) {
@@ -329,6 +348,7 @@ public class Beta extends Game implements IEventListener {
 		inDoor4 = false;
 		inDoor5 = false;
 		inDoor6 = false;
+		inFinalDoor = false;
 		ButtonPressed = false;
 		ButtonPressed2 = false;
 
@@ -405,6 +425,10 @@ public class Beta extends Game implements IEventListener {
 		}
 		if (player.getHitBox().intersects(door6.getHitBox())) {			
 			Event event = new Event("inDoor6Event", door6);
+			door6.dispatchEvent(event);
+		}
+		if (player.getHitBox().intersects(finalDoor.getHitBox())) {			
+			Event event = new Event("inFinalDoorEvent", finalDoor);
 			door6.dispatchEvent(event);
 		}
 		
@@ -491,6 +515,14 @@ public class Beta extends Game implements IEventListener {
 				bgm.stop();
 				level06 = new BetaLVL06();
 				level06.start();			
+				this.exitGame();
+			}
+			
+			//Check if we are intersecting with door6
+			if(inFinalDoor && eFrames == 20){
+				bgm.stop();
+				level2Player = new BetaLVL2Player();
+				level2Player.start();			
 				this.exitGame();
 			}
 
@@ -739,6 +771,10 @@ public class Beta extends Game implements IEventListener {
 			angryBrick2.draw(g);
 			angryBrick3.draw(g);
 		}
+		if(lvl06Complete){
+			finalDoor.draw(g);
+		}
+
 
 
 		if (player != null) {
@@ -826,6 +862,13 @@ public class Beta extends Game implements IEventListener {
 			inDoor6 = true;
 
 		}
+		
+		//Intersecting with finalDoor
+		if (event.getEventType() == "inFinalDoorEvent") {
+			System.out.println("inFinalDoorEvent");
+			inFinalDoor = true;
+
+		}
 
 		// Button pressed event
 		if (event.getEventType() == "ButtonPressed") {
@@ -871,7 +914,6 @@ public class Beta extends Game implements IEventListener {
 						player.setOnGround(true);
 					} else {
 						player.setV(0);
-						;
 						player.setyPos(source.getyPos() + source.getHeight());
 					}
 				}
@@ -879,12 +921,12 @@ public class Beta extends Game implements IEventListener {
 				else {
 
 					if (inter.getX() == source.getxPos()) {
-						player.setxPos(source.getxPos() - player.getWidth());
+						player.setxPos(source.getxPos() - player.getWidth()-10);
 					}
 
 					// intersect from right, hitbox start from right of coin
 					if (inter.getX() + inter.getWidth() == source.getxPos() + source.getWidth()) {
-						player.setxPos(source.getxPos() + source.getWidth());
+						player.setxPos(source.getxPos() + source.getWidth()+10);
 					}
 					player.setOnGround(false);
 				}

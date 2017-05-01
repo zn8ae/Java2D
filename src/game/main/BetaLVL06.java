@@ -29,6 +29,8 @@ import java.util.Map.Entry;
 
 public class BetaLVL06 extends Game implements IEventListener
 {
+	
+	static Beta game;
     AnimatedSprite Mario = new AnimatedSprite("player");
     Sprite saveStateMario1 = new Sprite("saveStateMario1","saved1.png");
     boolean save1 = false;
@@ -148,7 +150,7 @@ public class BetaLVL06 extends Game implements IEventListener
         button3.setxPos(900);
         button3.setyPos(100);
         
-        angryBrick.setxPos(300);
+        angryBrick.setxPos(220);
         angryBrick.setyPos(200);
         startingPositions.put(angryBrick,new Point((int)angryBrick.getxPos(), (int)angryBrick.getyPos()));
 
@@ -574,7 +576,10 @@ public class BetaLVL06 extends Game implements IEventListener
 		           compTween.removeEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
 		           bgm.stop();
 		           success.play();
-		   		   this.pause();
+		           game = new Beta();
+		   		   game.start();
+		   		   game.setLevelComplete(6);
+		   		   this.exitGame();
 	           } 
         }
         
